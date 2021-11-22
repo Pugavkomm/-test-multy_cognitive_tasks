@@ -130,3 +130,9 @@ dmypy.json
 
 # vscode
 .vscode/
+.history/
+
+# data, runs, weights etc
+data/
+.data/
+runs/
