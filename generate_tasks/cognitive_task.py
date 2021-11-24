@@ -1,6 +1,12 @@
 import numpy as np
 from typing import Tuple
 
+def _compare_time(f_time, interval):
+    if (f_time < interval):
+            f_time = interval
+    elif (f_time % interval != 0):
+        f_time -= f_time % interval
+    return f_time
 class TaskCognitive:
     ob_size = 0  
     act_size = 0
@@ -12,6 +18,7 @@ class TaskCognitive:
     def dataset(self): 
         """ Return dataset . """
         return None
+    
     
     @property
     def feature_and_act_size(self):
@@ -70,16 +77,12 @@ class ContextDM(TaskCognitive):
         trial = int(t_trial / dt)
         full_interval = fixation + target + delay + trial
         full_interval_and_delay = full_interval + delay
-        if (f_time < full_interval_and_delay):
-            f_time = full_interval_and_delay
-        if (f_time % full_interval_and_delay != 0):
-            f_time -= f_time % full_interval_and_delay
+        f_time = _compare_time(f_time, full_interval_and_delay)
         number_of_trials = int(f_time / full_interval_and_delay)
         context = np.zeros((2, batch_size))
         inputs = np.zeros((f_time, batch_size, self.ob_size))
         target_outputs = np.zeros((f_time, batch_size, self.act_size))
         
-        # labels = np.zeros((f_time, batch_size)) # if crossentropy
         
         for i in range(number_of_trials):
             context[0, :] = np.random.choice([0, 1], size=batch_size)
@@ -106,14 +109,18 @@ class ContextDM(TaskCognitive):
             
             indexes_context = np.where(context == 0)[0].astype(bool) # list 0 1 0 1 1 0 
             for j in range(batch_size):
-                input_one[:, j] += np.random.normal(move_average[j], sigma, size=(full_interval, 1))
-                input_two[:, j] += np.random.normal(color_average[j], sigma, size=(full_interval, 1))
+                if sigma == 0:
+                    input_one[:, j] += np.ones(size=(full_interval, 1)) * move_average[j]
+                    input_two[:, j] += np.ones(size=(full_interval, 1)) * color_average[j]
+                else:
+                    input_one[:, j] += np.random.normal(move_average[j], sigma, size=(full_interval, 1))
+                    input_two[:, j] += np.random.normal(color_average[j], sigma, size=(full_interval, 1))
                 
                 if indexes_context[j]:
                     output_one[:, j] += move_average_label[j]
                     output_two[:, j] += 1 - output_one[:, j]
                 else: 
-                    output_one[:, j] += move_average_label[j]
+                    output_one[:, j] += color_average_label[j]
                     output_two[:, j] += 1 - output_one[:, j] 
                     
                 
@@ -166,6 +173,7 @@ class AntiSaccade(TaskCognitive):
 class CompareObjects(TaskCognitive):
     ob_size = 2 # number of inputs (fixation + one input)
     act_size = 2 # number of outputs (fixation + one output)
+    examples = (0.1, 0.3, 0.5, 0.9)
     def __init__(self, params: dict, bath_size:int) -> None:
         super().__init__(params, bath_size)
         
@@ -175,7 +183,7 @@ class CompareObjects(TaskCognitive):
         batch_size = self._batch_size
         t_delay = self._params['delay']
         t_trial = self._params['trial']
-        t_fixation = self._params['fixation']
+        t_fixation = self._params['fixation'] # fixation = demostrate example
         t_target = self._params['target']
         
         fixation = int(t_fixation / dt)
@@ -186,9 +194,13 @@ class CompareObjects(TaskCognitive):
         full_interval_and_delay = full_interval + delay
         inputs = np.zeros((f_time, batch_size, 1))
         outputs = np.zeros((f_time, full_interval, batch_size, 1))
-        
-        for j in range(batch_size):
-            pass
+        f_time = _compare_time(f_time, full_interval_and_delay)
+        number_of_trials = int(f_time / full_interval_and_delay)
+        for i in range(number_of_trials):
+            fixation = np.ones(size=(full_interval, batch_size, 1))
+            stimuly = np.ones(size=(fu))
+            inputs[i * full_interval + delay: (i + 1) * full_interval_and_delay, :, 0] = fixation[:, :, 0]
+
         
         
 class MultyTask(ContextDM, AntiSaccade, CompareObjects):
@@ -227,10 +239,15 @@ class MultyTask(ContextDM, AntiSaccade, CompareObjects):
         sizes_all_tasks = self._feature_and_act_size_every_task()
         start_input_tasks = [1 + number_of_tasks]
         start_output_tasks = [1]
+        
+        size_input_tasks = []
+        size_output_tasks = []
         for key in sizes_all_tasks:
             n_inputs, n_outputs = sizes_all_tasks[key]
             n_inputs -= 1 # -fix
             n_outputs -= 1 # -fix
+            size_input_tasks.append(n_inputs)
+            size_output_tasks.append(n_outputs)
             start_input_tasks.append(n_inputs + start_input_tasks[-1])
             start_output_tasks.append(n_outputs + start_output_tasks[-1])
         print(start_input_tasks)
@@ -249,11 +266,13 @@ class MultyTask(ContextDM, AntiSaccade, CompareObjects):
             # 3. put rule
             inputs[-task_inputs.shape[0]:, :, 1: 1 + number_of_tasks] += RuleMatrix[:, task_number]
             # 4. put stimuly and outputs
-            
-            
-            
-        
-        return 1
+            start_input = start_input_tasks[task_number]
+            stop_input = start_input + size_input_tasks[task_number]
+            start_output = start_output_tasks[task_number]
+            stop_output = start_output + size_output_tasks[task_number]
+            inputs[-task_inputs.shape[0]:, :, start_input: stop_input] = task_inputs[:, :, 1: ]
+            outputs[-task_outputs.shape[0]:, :, start_output: stop_output] = task_outputs[:, :, 1:]
+        return inputs, outputs
     
     @property
     def feature_and_act_size(self) -> tuple[tuple[int, int], dict]:
