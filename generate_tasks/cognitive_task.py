@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Optional
 
 def _compare_time(f_time, interval):
     if (f_time < interval):
@@ -14,11 +14,19 @@ class TaskCognitive:
         self._params = params
         self._batch_size = batch_size
         
+    def _one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
+        return Tuple[np.ndarray, np.ndarray]
     
-    def dataset(self): 
-        """ Return dataset . """
-        return None
-    
+    def dataset(self, number_of_trials: int = 1) -> Tuple[np.ndarray, np.ndarray]: 
+        inputs = []
+        outputs = []
+        for i in range(number_of_trials):
+            one_trial_input, one_trial_output = self._one_dataset()
+            inputs.append(one_trial_input)
+            outputs.append(one_trial_output)
+        inputs = np.concatenate(inputs, axis=0)
+        outputs = np.concatenate(outputs, axis=0)
+        return inputs, outputs
     
     @property
     def feature_and_act_size(self):
@@ -46,25 +54,29 @@ class TaskCognitive:
         self._batch_size = batch_size
     
     
-    
+
     
 class ContextDM(TaskCognitive):
     
     ob_size = 5 # number of inputs 
     act_size = 3 # number of outputs
-    def __init__(self, params: dict, bath_size: int = 1) -> None:
-        super().__init__(params, bath_size)
+    def __init__(self, params: dict = dict([('sigma', 0), 
+                                            ('fixation', .3),
+                                            ('target', .35),
+                                            ('delay', .3),
+                                            ('trial', .75),
+                                            ('dt', 1e-3)]), 
+                            batch_size: int = 1) -> None:
+        super().__init__(params, batch_size)
         
-    def dataset(self): 
+    def _one_dataset(self): 
         """ Create a dataset containing the training data . """
         
-        # TODO: добавить выход правила (необходимо для сети, чтобы она могла определять решение задачи)
         sigma = self._params['sigma']
         t_fixation = self._params['fixation']
         t_target = self._params['target']
         t_delay = self._params['delay']
         t_trial = self._params['trial']
-        f_time = self._params['time']
         batch_size = self._batch_size
         dt = self._params['dt']
         
@@ -77,66 +89,53 @@ class ContextDM(TaskCognitive):
         trial = int(t_trial / dt)
         full_interval = fixation + target + delay + trial
         full_interval_and_delay = full_interval + delay
-        f_time = _compare_time(f_time, full_interval_and_delay)
-        number_of_trials = int(f_time / full_interval_and_delay)
         context = np.zeros((2, batch_size))
-        inputs = np.zeros((f_time, batch_size, self.ob_size))
-        target_outputs = np.zeros((f_time, batch_size, self.act_size))
+        #inputs = np.zeros((0, batch_size, self.ob_size))
+        #outputs = np.zeros((0, batch_size, self.act_size))
         
         
-        for i in range(number_of_trials):
-            context[0, :] = np.random.choice([0, 1], size=batch_size)
-            context[1, :] = 1 - context[0, :]
-            move_average = np.random.uniform(0, 1, size=batch_size)
-            color_average = np.random.uniform(0, 1, size=batch_size)
-            move_average_label = move_average > 0.5
-            move_average_label = move_average_label.astype(np.longlong)
-            color_average_label = color_average > 0.5
-            color_average_label = color_average_label.astype(np.longlong)
-            fixation_array = np.ones((full_interval, batch_size, 1)) # m.b full_interva - time of between trials
-            context_one = np.ones((full_interval, batch_size, 1)) 
-            context_one[:, :, 0] *= context[0]
-            context_two = np.ones((full_interval, batch_size, 1)) 
-            context_two[:, :, 0] *= context[1]
-            input_one = np.zeros((full_interval, batch_size, 1))   
-            input_two = np.zeros((full_interval, batch_size, 1)) 
-            output_one = np.zeros((full_interval_and_delay, batch_size, 1))   
-            output_two = np.zeros((full_interval_and_delay, batch_size, 1)) 
+        context[0, :] = np.random.choice([0, 1], size=batch_size)
+        context[1, :] = 1 - context[0, :]
+        move_average = np.random.uniform(0, 1, size=batch_size)
+        color_average = np.random.uniform(0, 1, size=batch_size)
+        move_average_label = move_average > 0.5
+        move_average_label = move_average_label.astype(np.longlong)
+        color_average_label = color_average > 0.5
+        color_average_label = color_average_label.astype(np.longlong)
+        fixation_array = np.ones((full_interval, batch_size, 1)) # m.b full_interva - time of between trials
+        context_one = np.ones((full_interval, batch_size, 1)) 
+        context_one[:, :, 0] *= context[0]
+        context_two = np.ones((full_interval, batch_size, 1)) 
+        context_two[:, :, 0] *= context[1]
+        input_one = np.zeros((full_interval, batch_size, 1))   
+        input_two = np.zeros((full_interval, batch_size, 1)) 
+        output_one = np.zeros((full_interval, batch_size, 1))   
+        output_two = np.zeros((full_interval, batch_size, 1)) 
 
+        
+        target_fixation = np.zeros((full_interval_and_delay, batch_size, 1))
+        target_fixation[0:full_interval, ...] = fixation_array[...]
+        
+        indexes_context = np.where(context == 0)[0].astype(bool) # list 0 1 0 1 1 0 
+        for j in range(batch_size):
+            if sigma == 0:
+                input_one[:, j] += np.ones((full_interval, 1)) * move_average[j]
+                input_two[:, j] += np.ones((full_interval, 1)) * color_average[j]
+            else:
+                input_one[:, j] += np.random.normal(move_average[j], sigma, size=(full_interval, 1))
+                input_two[:, j] += np.random.normal(color_average[j], sigma, size=(full_interval, 1))
             
-            target_fixation = np.zeros((full_interval_and_delay, batch_size, 1))
-            target_fixation[0:full_interval, ...] = fixation_array[...]
-            
-            indexes_context = np.where(context == 0)[0].astype(bool) # list 0 1 0 1 1 0 
-            for j in range(batch_size):
-                if sigma == 0:
-                    input_one[:, j] += np.ones(size=(full_interval, 1)) * move_average[j]
-                    input_two[:, j] += np.ones(size=(full_interval, 1)) * color_average[j]
-                else:
-                    input_one[:, j] += np.random.normal(move_average[j], sigma, size=(full_interval, 1))
-                    input_two[:, j] += np.random.normal(color_average[j], sigma, size=(full_interval, 1))
-                
-                if indexes_context[j]:
-                    output_one[:, j] += move_average_label[j]
-                    output_two[:, j] += 1 - output_one[:, j]
-                else: 
-                    output_one[:, j] += color_average_label[j]
-                    output_two[:, j] += 1 - output_one[:, j] 
-                    
-                
-                #if indexes_context[j]:
-                    #labels[i * full_interval_and_delay + full_interval: (i + 1) * full_interval_and_delay, j] \
-                    #    += move_average_label[j] + 1
-                #else:
-                    #labels[i * full_interval_and_delay + full_interval: (i + 1) * full_interval_and_delay, j] \
-                    #    += color_average_label[j] + 1
-            inputs[i * full_interval_and_delay: (i + 1) * (full_interval_and_delay ) - delay] \
-                                                            = np.concatenate((fixation_array, input_one, 
-                                                                              input_two, context_one, 
-                                                                              context_two), axis=-1)
-                                                            
-            target_outputs[i * full_interval_and_delay: (i + 1) * (full_interval_and_delay)] = np.concatenate((target_fixation, output_one, output_two), axis=-1)
-        return inputs, target_outputs
+            if indexes_context[j]:
+                output_one[:, j] += move_average_label[j]
+                output_two[:, j] += 1 - output_one[:, j]
+            else: 
+                output_one[:, j] += color_average_label[j]
+                output_two[:, j] += 1 - output_one[:, j] 
+        inputs =  np.concatenate((fixation_array, input_one, input_two, context_one, context_two), axis=-1)
+        inputs = np.concatenate((inputs, np.zeros((delay, self._batch_size, self.ob_size))))
+        outputs = np.concatenate((fixation_array, output_one, output_two), axis=-1)
+        outputs = np.concatenate((outputs, np.zeros((delay, self._batch_size, self.act_size))))
+        return inputs, outputs
     
 class AntiSaccade(TaskCognitive):
     ob_size = 3 # number of inputs (fixation + two inputs)
@@ -144,7 +143,7 @@ class AntiSaccade(TaskCognitive):
     def __init__(self, params: dict, batch_size: int) -> None:
         super().__init__(params, batch_size)
 
-    def dataset(self):
+    def _one_dataset(self):
         # TODO: добавить выход правила (необходимо для сети, чтобы она могла определять решение задачи)
         
         dt = self._params['dt']
@@ -169,44 +168,130 @@ class AntiSaccade(TaskCognitive):
         
         # comment return inputs, labels, ob_size, act_size
 
-   
+
+class WorkingMemory(TaskCognitive):
+    '''
+    Neuronal correlates of parametric working memory in the prefrontal cortex
+    Ranulfo Romo, Carlos D. Brody, Adria ́n Herna ́ndez & Luis Lemus
+    Instituto de Fisiologı ́a Celular, Universidad Nacional Autono ́ma de Me ́xico,
+    Me ́xico D.F. 04510, Me ́xico
+    '''
+    ob_size = 2 # number of inputs: fix + stimul
+    act_size = 3 # number of outputs: fix + two outputs
+    def __init__(self, params: dict = dict([
+                                            ('dt', 1e-3), # step 1ms
+                                            ('delay', .5), # 500 ms 
+                                            ('trial', .5), # 500 ms
+                                            ('KU', 0.05), # 50 ms
+                                            ('PB', 0.05), # 50 ms
+                                            ('min', 0), 
+                                            ('max', 1)
+                                            ]), 
+                 batch_size: int = 1) -> None:
+        super().__init__(params, batch_size)
+        
+    def _one_dataset(self):
+        dt = self._params['dt']
+        delay = int(self._params['delay'] / dt)
+        trial = int(self._params['trial'] / dt)
+        KU = int(self._params['KU'] / dt)
+        PB = int(self._params['PB'] / dt)
+        full_interval = delay + 2 * trial + KU + PB
+        start_base = 0
+        end_base = trial
+        start_compare = trial + delay
+        end_compare = start_compare + trial
+        start_act = full_interval - PB - trial
+        fixation_interval = full_interval - PB
+        min_stimulus = self._params['min']
+        max_stimulus = self._params['max']
+        fixation = np.zeros((full_interval, self._batch_size, 1))
+        fixation[0:fixation_interval] = 1
+        base_stimulus = np.random.uniform(min_stimulus, max_stimulus, size=self._batch_size)
+        comparison = np.random.uniform(min_stimulus, max_stimulus, size=self._batch_size)
+        trial_input = np.zeros((full_interval, self._batch_size, 1))
+        trial_output = np.zeros((full_interval, self._batch_size, 2))
+        for batch in range(self._batch_size):
+            base = base_stimulus[batch]
+            compare = comparison[batch]
+            input_stimulus = np.zeros((full_interval, 1,  1))
+            input_stimulus[start_base:end_base] = base
+            input_stimulus[start_compare:end_compare] = compare
+            trial_input[:, batch, 0] = input_stimulus[:, 0, 0]
+            act_output = np.zeros((full_interval, 1, 2))
+            act_output[start_act:, 0, int(compare > base)] = 1
+            trial_output[:, batch, :] = act_output[:, 0, :]
+        inputs = np.concatenate((fixation, trial_input), axis=-1)
+        outputs = np.concatenate((fixation, trial_output), axis=-1)
+        inputs = np.concatenate((inputs, np.zeros((delay, inputs.shape[1], inputs.shape[2]))))
+        outputs = np.concatenate((outputs, np.zeros((delay, outputs.shape[1], outputs.shape[2]))))
+        return inputs, outputs
+                    
+                    
+                    
+                    
+                    
+
 class CompareObjects(TaskCognitive):
     ob_size = 2 # number of inputs (fixation + one input)
     act_size = 2 # number of outputs (fixation + one output)
     examples = (0.1, 0.3, 0.5, 0.9)
-    def __init__(self, params: dict, bath_size:int) -> None:
-        super().__init__(params, bath_size)
+    def __init__(self, params: dict = dict([
+                                            ('dt', 1e-3),
+                                            ('delay', 1),
+                                            ('trial', .5),
+                                            ('time_object', .3)        
+                                            ]), 
+                            batch_size:int = 1) -> None:
+        super().__init__(params, batch_size)
         
-    def dataset(self):
+    def _one_dataset(self):
         dt = self._params['dt']
-        f_time = self.__params['time']
-        batch_size = self._batch_size
-        t_delay = self._params['delay']
-        t_trial = self._params['trial']
-        t_fixation = self._params['fixation'] # fixation = demostrate example
-        t_target = self._params['target']
-        
-        fixation = int(t_fixation / dt)
-        target = int(t_target / dt)
-        delay = int(t_delay / dt)
-        trial = int(t_trial / dt)
-        full_interval = fixation + target + delay + trial
-        full_interval_and_delay = full_interval + delay
-        inputs = np.zeros((f_time, batch_size, 1))
-        outputs = np.zeros((f_time, full_interval, batch_size, 1))
-        f_time = _compare_time(f_time, full_interval_and_delay)
-        number_of_trials = int(f_time / full_interval_and_delay)
-        for i in range(number_of_trials):
-            fixation = np.ones(size=(full_interval, batch_size, 1))
-            stimuly = np.ones(size=(fu))
-            inputs[i * full_interval + delay: (i + 1) * full_interval_and_delay, :, 0] = fixation[:, :, 0]
+        delay = int(self._params['delay'] / dt)
+        trial = int(self._params['trial'] / dt)
+        time_object = int(self._params['time_object'] / dt)
+        tasks_number = [0, 1]
+        full_interval = time_object + (len(tasks_number) + 1) * delay + len(tasks_number) * trial # example, 6 delay, 5 trial (sum)
+        fixation = np.zeros((full_interval, 1))
+        stimul = np.zeros((full_interval, 1))
+        target_output = np.zeros((full_interval, 1))
+        object_for_batch = np.random.uniform(0, 1, size=(self._batch_size))
+        choice_correct = np.random.choice(tasks_number, size=(self._batch_size, 1))
+        inputs = np.zeros((full_interval, self._batch_size, self.ob_size))
+        outputs = np.zeros((full_interval, self._batch_size, self.act_size))
+        for batch in range(self._batch_size):
+            fixation *= 0
+            stimul *= 0
+            target_output *= 0
+            fixation[0: time_object + (1 + choice_correct[batch, 0]) * (trial + delay) + trial + delay - int(delay / 100), 0] = 1
+            start_out = time_object + choice_correct[batch, 0] * (trial + delay) + 2 * trial 
+            target_output[start_out: start_out + trial + delay - int(delay / 100) , 0] = 1
+            stimul[0:time_object, 0] = object_for_batch[batch]
+            for j in range(choice_correct[batch, 0]):
+                curent_example = np.random.uniform(0, 1)
+                while curent_example == object_for_batch[batch]:
+                    curent_example = np.random.uniform(0, 1)
+                stimul[time_object + delay + j * (trial + delay): time_object + delay + j * (trial + delay) + trial] = curent_example 
+            stimul[time_object + delay + choice_correct[batch, 0] * (trial + delay): time_object + delay + choice_correct[batch, 0] * (trial + delay) + trial, 0] = object_for_batch[batch]
+            inputs[:, batch, 0] = fixation[:, 0]
+            inputs[:, batch, 1] = stimul[:, 0]
+            outputs[:, batch, 0] = fixation[:, 0]
+            outputs[:, batch, 1] = target_output[:, 0]
+        inputs = np.concatenate((inputs, np.zeros((delay, self._batch_size, self.ob_size))), axis=0)
+        outputs = np.concatenate((outputs, np.zeros((delay, self._batch_size, self.act_size))), axis=0)
+            
+            
+        return inputs, outputs
+                
+                
 
-        
-        
 class MultyTask(ContextDM, AntiSaccade, CompareObjects):
-    TASKSDICT = dict([('ContextDM', ContextDM), 
-                 ('AntiSaccade', AntiSaccade),
-                 ('CompareObjects', CompareObjects)])
+    task_list = [('ContextDM', ContextDM), 
+        ('AntiSaccade', AntiSaccade),
+        ('CompareObjects', CompareObjects), 
+        ('WorkingMemory', WorkingMemory)]
+    task_list.sort()
+    TASKSDICT = dict(task_list)
     def __init__(self, tasks: dict[str, dict], batch_size: int = 1) -> None:
         # tasks : dict(task_name -> parameters)
         for i, name in enumerate(tasks):
@@ -226,7 +311,11 @@ class MultyTask(ContextDM, AntiSaccade, CompareObjects):
     def _init_tasks(self):
         self._task_list.clear()
         for key in self._tasks: 
-            self._task_list.append(self.TASKSDICT[key](self._tasks[key], self._batch_size))
+            if len(self._tasks[key]) > 0:
+                self._task_list.append(self.TASKSDICT[key](self._tasks[key], self._batch_size))
+            else:
+                self._task_list.append(self.TASKSDICT[key](batch_size=self._batch_size))
+                
         
     def dataset(self, number_of_generations: int = 1) -> tuple[np.ndarray, np.ndarray]:
         number_of_tasks = len(self._tasks)
@@ -250,18 +339,16 @@ class MultyTask(ContextDM, AntiSaccade, CompareObjects):
             size_output_tasks.append(n_outputs)
             start_input_tasks.append(n_inputs + start_input_tasks[-1])
             start_output_tasks.append(n_outputs + start_output_tasks[-1])
-        print(start_input_tasks)
-        print(start_output_tasks)
-            
+                   
         
         for i in range(number_of_generations):
             task_number = np.random.choice(choice_tasks)
-            task_inputs, task_outputs = self._task_list[i].dataset()
+            task_inputs, task_outputs = self._task_list[task_number].dataset()
             # 1. expansion of matrices
             inputs = np.concatenate((inputs, np.zeros((task_inputs.shape[0], self._batch_size, all_inputs))))
             outputs = np.concatenate((outputs, np.zeros((task_outputs.shape[0], self._batch_size, all_outputs))))
             # 2. put fixations
-            inputs[-task_inputs.shape[0]:, :, 0] = task_inputs[-task_inputs.shape[0], :, 0]
+            inputs[-task_inputs.shape[0]:, :, 0] = task_inputs[-task_inputs.shape[0]:, :, 0]
             outputs[-task_inputs.shape[0]:, :, 0] = task_outputs[-task_outputs.shape[0], :, 0]
             # 3. put rule
             inputs[-task_inputs.shape[0]:, :, 1: 1 + number_of_tasks] += RuleMatrix[:, task_number]
@@ -339,44 +426,5 @@ class MultyTask(ContextDM, AntiSaccade, CompareObjects):
         return len(self._tasks)
                 
 
-t_fixation = .3
-t_target = .35
-t_trial = .75
-t_delay = .3 #300 - 1500 (.3s - 1.5s)
 
-f_time = 30000
-dt = 1e-3
-dict_ContextDM = dict([('sigma', .1), 
-              ('fixation', t_fixation),
-              ('target', t_target),
-              ('delay', t_delay),
-              ('trial', t_trial),
-              ('time', f_time),
-              ('dt', dt)])
-dict_Compare = dict([('dt', 0.001)])
-new_task = 'CompareObjects'
-tasks = dict([('ContextDM', dict_ContextDM),
-              (new_task, dict_Compare),
-              ('AntiSaccade', dict_Compare)])
-multytas = MultyTask(tasks)
-#print(multytas.tasks)
 
-#multytas[0] = (new_task, dict_Compare)
-for i in range(len(multytas)):
-    print(multytas[i])
-
-#multytas.dataset()
-
-#multytas.dataset()
-
-params = dict([('sigma', .1), 
-              ('fixation', t_fixation),
-              ('target', t_target),
-              ('delay', t_delay),
-              ('trial', t_trial),
-              ('time', f_time),
-              ('dt', dt)])
-
-CDM = ContextDM(params)
-
-print(multytas.feature_and_act_size)

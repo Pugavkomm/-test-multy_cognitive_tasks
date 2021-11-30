@@ -1,6 +1,6 @@
 # Pull reqest to norse
 import torch
-from typing import Optional
+from typing import Annotated, Optional
 
 @torch.jit.script
 def _exp_filter_step_jit(
@@ -53,5 +53,3 @@ class ExpFilter(torch.nn.Module):
             out = exp_filter_step(outputs[-1], input_tensor[ts + 1], self.parameter)
             outputs.append(out)
         return torch.stack(outputs)
-
-
