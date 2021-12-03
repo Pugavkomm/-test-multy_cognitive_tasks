@@ -139,3 +139,6 @@ runs/
 
 # librares 
 neurogym/
+
+# trunk 
+.trunk/
