@@ -19,14 +19,14 @@ class TaskCognitive:
         self._params = params
         self._batch_size = batch_size
 
-    def _one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
+    def one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
         return Tuple[np.ndarray, np.ndarray]
 
     def dataset(self, number_of_trials: int = 1) -> Tuple[np.ndarray, np.ndarray]:
         inputs = []
         outputs = []
         for _ in range(number_of_trials):
-            one_trial_input, one_trial_output = self._one_dataset()
+            one_trial_input, one_trial_output = self.one_dataset()
             inputs.append(one_trial_input)
             outputs.append(one_trial_output)
         inputs = np.concatenate(inputs, axis=0)
@@ -77,7 +77,7 @@ class ContextDM(TaskCognitive):
     ) -> None:
         super().__init__(params, batch_size)
 
-    def _one_dataset(self):
+    def one_dataset(self):
         sigma = self._params["sigma"]
         t_fixation = self._params["fixation"]
         t_target = self._params["target"]
@@ -182,7 +182,7 @@ class WorkingMemory(TaskCognitive):
     ) -> None:
         super().__init__(params, batch_size)
 
-    def _one_dataset(self):
+    def one_dataset(self):
         dt = self._params["dt"]
         delay = int(self._params["delay"] / dt)
         trial = int(self._params["trial"] / dt)
@@ -242,7 +242,7 @@ class CompareObjects(TaskCognitive):
     ) -> None:
         super().__init__(params, batch_size)
 
-    def _one_dataset(self):
+    def one_dataset(self):
         dt = self._params["dt"]
         delay = int(self._params["delay"] / dt)
         trial = int(self._params["trial"] / dt)
@@ -323,7 +323,7 @@ class MultyTask:
 
     def __init__(self, tasks: dict[str, dict], batch_size: int = 1) -> None:
         # tasks : dict(task_name -> parameters)
-        for i, name in enumerate(tasks):
+        for name in tasks:
             if not (name in self.TASKSDICT):
                 raise KeyError(f'"{name}" not supported')
         self._tasks = tasks
