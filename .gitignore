@@ -143,3 +143,6 @@ neurogym/
 
 # trunk 
 .trunk/
+
+# norse
+norse/
