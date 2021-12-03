@@ -49,13 +49,10 @@ class TaskCognitive:
 
     @property
     def batch_size(self):
-        """The number of batches returned by this query ."""
         return self._batch_size
 
     @batch_size.setter
     def batch_size(self, batch_size: int):
-        """Setter for _setter_size ."""
-
         self._batch_size = batch_size
 
 
@@ -81,8 +78,6 @@ class ContextDM(TaskCognitive):
         super().__init__(params, batch_size)
 
     def _one_dataset(self):
-        """Create a dataset containing the training data ."""
-
         sigma = self._params["sigma"]
         t_fixation = self._params["fixation"]
         t_target = self._params["target"]
@@ -159,6 +154,7 @@ class ContextDM(TaskCognitive):
 
 
 class WorkingMemory(TaskCognitive):
+    
     """
     Neuronal correlates of parametric working memory in the prefrontal cortex
     Ranulfo Romo, Carlos D. Brody, Adria ́n Herna ́ndez & Luis Lemus

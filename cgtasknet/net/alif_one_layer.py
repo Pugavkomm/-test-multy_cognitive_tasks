@@ -9,9 +9,7 @@ from cgtasknet.tasks.tasks import TaskCognitive
 
 
 class SNNALIF(torch.nn.Module):
-    r"""
-    This net includes one alif layer.
-    """
+    r"""This net includes one alif layer."""
 
     def __init__(
         self,

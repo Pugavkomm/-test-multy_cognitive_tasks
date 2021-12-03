@@ -19,6 +19,7 @@ def exp_filter_step(
 
 
 class ExpFilter(torch.nn.Module):
+
     r"""
     A exponential smoothing layer. This layer is useful
     for smoothing out the spike activity of neurons and getting an
