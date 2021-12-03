@@ -128,9 +128,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# vscode
+# vscode / pycharm
 .vscode/
 .history/
+.idea/
 
 # data, runs, weights etc
 data/
