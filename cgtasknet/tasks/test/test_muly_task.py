@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from net_cognitive_tasks.tasks.tasks import MultyTask
+from cgtasknet.tasks.tasks import MultyTask
 
 task_list = [("WorkingMemory", dict()), (("ContextDM", dict()))]
 tasks = dict(task_list)

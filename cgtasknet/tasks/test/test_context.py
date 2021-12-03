@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from net_cognitive_tasks.tasks.tasks import ContextDM
+from cgtasknet.tasks.tasks import ContextDM
 
 task = ContextDM()
 inputs, outputs = task.dataset(1)

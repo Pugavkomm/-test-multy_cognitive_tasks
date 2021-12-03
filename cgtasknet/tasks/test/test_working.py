@@ -1,6 +1,6 @@
-from net_cognitive_tasks.tasks.tasks import WorkingMemory
-
 import matplotlib.pyplot as plt
+
+from .net_cognitive_tasks.tasks.tasks import WorkingMemory
 
 task = WorkingMemory()
 inputs, outputs = task.dataset(1)
