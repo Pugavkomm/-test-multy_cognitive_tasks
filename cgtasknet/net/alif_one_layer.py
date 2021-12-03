@@ -5,9 +5,14 @@ import torch
 from norse.torch.functional.lif_adex import LIFAdExParameters
 
 from cgtasknet.instrumetns.exponent_filter import ExpFilter
+from cgtasknet.tasks.tasks import TaskCognitive
 
 
 class SNNALIF(torch.nn.Module):
+    r"""
+    This net includes one alif layer.
+    """
+
     def __init__(
         self,
         feature_size,
@@ -29,3 +34,18 @@ class SNNALIF(torch.nn.Module):
         out, state = self.alif(x)
         out = self.exp_f(out)
         return (out, state)
+
+
+class SNNALIFstates:
+    def __init__(self, model: SNNALIF, task: TaskCognitive, number_of_tasks) -> None:
+        self.model = model
+        self.task = task
+        self.number_of_tasks = number_of_tasks
+
+    @property
+    def number_of_tasks(self):
+        return self.number_of_tasks
+
+    @number_of_tasks.setter
+    def number_of_tasks(self, new_number_of_tasks):
+        self.number_of_tasks = new_number_of_tasks
