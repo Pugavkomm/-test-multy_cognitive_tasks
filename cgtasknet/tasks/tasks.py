@@ -25,7 +25,7 @@ class TaskCognitive:
     def dataset(self, number_of_trials: int = 1) -> Tuple[np.ndarray, np.ndarray]:
         inputs = []
         outputs = []
-        for i in range(number_of_trials):
+        for _ in range(number_of_trials):
             one_trial_input, one_trial_output = self._one_dataset()
             inputs.append(one_trial_input)
             outputs.append(one_trial_output)
@@ -156,37 +156,6 @@ class ContextDM(TaskCognitive):
             (outputs, np.zeros((delay, self._batch_size, self.act_size)))
         )
         return inputs, outputs
-
-
-# class AntiSaccade(TaskCognitive):
-#    ob_size = 3  # number of inputs (fixation + two inputs)
-#    act_size = 3  # number of outputs (fixation + two)
-#
-#    def __init__(self, params: dict, batch_size: int) -> None:
-#        super().__init__(params, batch_size)
-#
-#    def _one_dataset(self):
-#        # TODO: добавить выход правила (необходимо для сети, чтобы она могла определять решение задачи)
-#
-#        dt = self._params["dt"]
-#        # _time = self._params['time']
-#        batch_size = self._batch_size
-#        # t_delay = self._params['delay']
-#        # t_trial = self._params['trial']
-#
-#        fixation = int(t_fixation / dt)
-#        target = int(t_target / dt)
-#        delay = int(t_delay / dt)
-#        trial = int(t_trial / dt)
-#        full_interval = fixation + target + delay + trial
-#        full_interval_and_delay = full_interval + delay
-#        inputs = np.zeros((f_time, batch_size, 1))
-#        outputs = np.zeros((f_time, full_interval, batch_size, 1))
-#
-#        for j in range(batch_size):
-#            pass
-#
-#        # comment return inputs, labels, ob_size, act_size
 
 
 class WorkingMemory(TaskCognitive):
@@ -387,7 +356,7 @@ class MultyTask:
         number_of_tasks = len(self._tasks)
         choice_tasks = [i for i in range(number_of_tasks)]
         all_inputs, all_outputs = self._count_feature_and_act_size()
-        RuleMatrix = np.eye(number_of_tasks)
+        rules = np.eye(number_of_tasks)
         inputs = np.zeros((0, self._batch_size, all_inputs))
         outputs = np.zeros((0, self._batch_size, all_outputs))
         sizes_all_tasks = self._feature_and_act_size_every_task()
@@ -405,7 +374,7 @@ class MultyTask:
             start_input_tasks.append(n_inputs + start_input_tasks[-1])
             start_output_tasks.append(n_outputs + start_output_tasks[-1])
 
-        for i in range(number_of_generations):
+        for _ in range(number_of_generations):
             task_number = np.random.choice(choice_tasks)
             task_inputs, task_outputs = self._task_list[task_number].dataset()
             # 1. expansion of matrices
@@ -426,7 +395,7 @@ class MultyTask:
                 -task_outputs.shape[0] :, :, 0
             ]
             # 3. put rule
-            inputs[-task_inputs.shape[0] :, :, 1 : 1 + number_of_tasks] += RuleMatrix[
+            inputs[-task_inputs.shape[0] :, :, 1 : 1 + number_of_tasks] += rules[
                 :, task_number
             ]
             # 4. put stimuly and outputs
@@ -474,12 +443,12 @@ class MultyTask:
     def tasks(self, tasks) -> None:
         self.__init__(tasks)
 
-    def GetTask(self, key) -> dict:
+    def get_task(self, key) -> dict:
         if not (key in self._tasks):
             raise KeyError()
         return self._tasks[key]
 
-    def SetTask(self, key: str, params: dict):
+    def set_task(self, key: str, params: dict):
         if not (key in self._tasks):
             raise KeyError()
         self._tasks[key] = params
