@@ -154,8 +154,8 @@ class ContextDM(TaskCognitive):
 
 
 class WorkingMemory(TaskCognitive):
-    
-    """
+
+    r"""
     Neuronal correlates of parametric working memory in the prefrontal cortex
     Ranulfo Romo, Carlos D. Brody, Adria ́n Herna ́ndez & Luis Lemus
     Instituto de Fisiologı ́a Celular, Universidad Nacional Autono ́ma de Me ́xico,
