@@ -28,9 +28,6 @@ class InitialStates:
 
 
 class LIFSInittate(InitialStates):
-    def __init__(self, batch_size, hidden_size) -> None:
-        super.__init__(batch_size, hidden_size)
-
     def zero_state(self):
         return LIFState(
             torch.zeros(self._batch_size, self._hidden_size),
@@ -47,10 +44,6 @@ class LIFSInittate(InitialStates):
 
 
 class LIFRefracInitState(InitialStates):
-    def __init__(self, batch_size, hidden_size):
-        super.__init__(batch_size, hidden_size)
-        self.lif_state = LIFState(batch_size, hidden_size)
-
     def zero_state(self):
         return LIFRefracState(
             self.lif_state.zero_state(),
@@ -65,9 +58,6 @@ class LIFRefracInitState(InitialStates):
 
 
 class LSNNInitState(InitialStates):
-    def __init__(self, batch_size, hidden_size):
-        super.__init(batch_size, hidden_size)
-
     def lif_lsnn_zero_state(self):
         return LSNNState(
             torch.zeros(self._batch_size, self._hidden_size),
@@ -86,9 +76,6 @@ class LSNNInitState(InitialStates):
 
 
 class LIFAdExInitState(InitialStates):
-    def __init__(self, batch_size, hidden_size):
-        super.__init__(batch_size, hidden_size)
-
     def lif_adex_zero_state(self):
         return LIFAdExState(
             torch.zeros(self._batch_size, self._hidden_size),
