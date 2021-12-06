@@ -30,3 +30,7 @@ class SNNLif(torch.nn.Module):
         out, state = self.alif(x)
         out = self.exp_f(out)
         return (out, state)
+
+    @staticmethod
+    def type_parameters():
+        return LIFParameters

@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 
 import norse.torch as snn
 import torch
-from norse.torch.functional.lif import LIFParameters, LIFState
+from norse.torch.functional.lif import LIFState
 from norse.torch.functional.lif_refrac import LIFRefracParameters, LIFRefracState
 from norse.torch.module.exp_filter import ExpFilter
 
@@ -26,15 +26,17 @@ class SNNLifRefrac(torch.nn.Module):
                 feature_size, hidden_size, p=neuron_parameters
             )
         else:
-            self.lif_refrac = snn.LIFRefracRecurrent(
-                feature_size, hidden_size
-            )
+            self.lif_refrac = snn.LIFRefracRecurrent(feature_size, hidden_size)
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
     def forward(self, x: torch.tensor) -> Tuple[torch.tensor, LIFRefracState]:
         out, state = self.lif_refrac(x)
         out = self.exp_f(out)
         return (out, state)
+
+    @staticmethod
+    def type_parameters():
+        return LIFRefracParameters
 
 
 class SNNLIFRefractOneState(SNNLifRefrac):
