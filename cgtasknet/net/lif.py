@@ -34,3 +34,7 @@ class SNNLif(torch.nn.Module):
     @staticmethod
     def type_parameters():
         return LIFParameters
+
+    @staticmethod
+    def type_state():
+        return LIFState

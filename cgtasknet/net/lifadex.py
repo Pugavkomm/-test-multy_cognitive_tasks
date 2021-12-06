@@ -36,3 +36,7 @@ class SNNlifadex(torch.nn.Module):
     @staticmethod
     def type_parameters():
         return LIFAdExParameters
+
+    @staticmethod
+    def type_state():
+        return LIFAdExState

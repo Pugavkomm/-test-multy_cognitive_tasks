@@ -36,3 +36,7 @@ class SNNAlif(torch.nn.Module):
     @staticmethod
     def type_parameters():
         return LSNNParameters
+
+    @staticmethod
+    def type_state():
+        return LSNNState

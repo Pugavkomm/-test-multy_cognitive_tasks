@@ -38,6 +38,10 @@ class SNNLifRefrac(torch.nn.Module):
     def type_parameters():
         return LIFRefracParameters
 
+    @staticmethod
+    def type_state():
+        return LIFRefracState
+
 
 class SNNLIFRefractOneState(SNNLifRefrac):
     def __init__(
