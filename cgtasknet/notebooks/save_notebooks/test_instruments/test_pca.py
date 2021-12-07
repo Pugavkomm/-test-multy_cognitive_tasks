@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from cgtasknet.instrumetns.instrument_pca import PCA
+from tqdm import tqdm
+
 from cgtasknet.instrumetns.dynamic_generate import SNNStates
+from cgtasknet.instrumetns.instrument_pca import PCA
 from cgtasknet.net.lifadex import SNNlifadex
 from cgtasknet.net.states import LIFAdExInitState
-from cgtasknet.tasks.tasks import MultyTask, WorkingMemory
-from tqdm import tqdm
+from cgtasknet.tasks.tasks import WorkingMemory
 
 number_of_tasks = 8
 task_list = [("WorkingMemory", dict()), ("ContextDM", dict())]
