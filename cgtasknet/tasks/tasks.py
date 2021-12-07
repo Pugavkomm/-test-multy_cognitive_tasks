@@ -176,6 +176,8 @@ class WorkingMemory(TaskCognitive):
                 ("PB", 0.05),  # 50 ms
                 ("min", 0),
                 ("max", 1),
+                ("first", -1),
+                ("second", -1),
             ]
         ),
         batch_size: int = 1,
@@ -199,12 +201,19 @@ class WorkingMemory(TaskCognitive):
         max_stimulus = self._params["max"]
         fixation = np.zeros((full_interval, self._batch_size, 1))
         fixation[0:fixation_interval] = 1
-        base_stimulus = np.random.uniform(
-            min_stimulus, max_stimulus, size=self._batch_size
-        )
-        comparison = np.random.uniform(
-            min_stimulus, max_stimulus, size=self._batch_size
-        )
+        if self._params["first"] == -1:
+            base_stimulus = np.random.uniform(
+                min_stimulus, max_stimulus, size=self._batch_size
+            )
+        else:
+            base_stimulus = np.ones(self._batch_size) * self._params["first"]
+        if self._params["second"] == -1:
+            comparison = np.random.uniform(
+                min_stimulus, max_stimulus, size=self._batch_size
+            )
+        else:
+            comparison = np.ones(self._batch_size) * self._params["second"]
+
         trial_input = np.zeros((full_interval, self._batch_size, 1))
         trial_output = np.zeros((full_interval, self._batch_size, 2))
         for batch in range(self._batch_size):
@@ -220,10 +229,10 @@ class WorkingMemory(TaskCognitive):
         inputs = np.concatenate((fixation, trial_input), axis=-1)
         outputs = np.concatenate((fixation, trial_output), axis=-1)
         inputs = np.concatenate(
-            (inputs, np.zeros((delay, inputs.shape[1], inputs.shape[2])))
+            (inputs, np.zeros((delay * 2, inputs.shape[1], inputs.shape[2])))
         )
         outputs = np.concatenate(
-            (outputs, np.zeros((delay, outputs.shape[1], outputs.shape[2])))
+            (outputs, np.zeros((delay * 2, outputs.shape[1], outputs.shape[2])))
         )
         return inputs, outputs
 

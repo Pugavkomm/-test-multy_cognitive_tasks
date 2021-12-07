@@ -21,15 +21,17 @@ class SNNLif(torch.nn.Module):
     ) -> None:
         super(SNNLif, self).__init__()
         if neuron_parameters is not None:
-            self.alif = snn.LIFRecurrent(feature_size, hidden_size, p=neuron_parameters)
+            self.lif = snn.LIFRecurrent(feature_size, hidden_size, p=neuron_parameters)
         else:
-            self.alif = snn.LIFRecurrent(feature_size, hidden_size)
+            self.lif = snn.LIFRecurrent(feature_size, hidden_size)
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
-    def forward(self, x: torch.tensor) -> Tuple[torch.tensor, LIFState]:
-        out, state = self.alif(x)
+    def forward(
+        self, x: torch.tensor, state: Optional[LIFState] = None
+    ) -> Tuple[torch.tensor, LIFState]:
+        out, n_state = self.lif(x, state)
         out = self.exp_f(out)
-        return (out, state)
+        return (out, n_state)
 
     @staticmethod
     def type_parameters():

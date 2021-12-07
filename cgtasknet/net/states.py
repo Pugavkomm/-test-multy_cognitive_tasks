@@ -27,7 +27,7 @@ class InitialStates:
         self._hidden_size = hidden_size_new
 
 
-class LIFSInittate(InitialStates):
+class LIFInitState(InitialStates):
     def zero_state(self):
         return LIFState(
             torch.zeros(self._batch_size, self._hidden_size),
@@ -58,7 +58,7 @@ class LIFRefracInitState(InitialStates):
 
 
 class LSNNInitState(InitialStates):
-    def lif_lsnn_zero_state(self):
+    def zero_state(self):
         return LSNNState(
             torch.zeros(self._batch_size, self._hidden_size),
             torch.zeros(self._batch_size, self._hidden_size),
@@ -66,7 +66,7 @@ class LSNNInitState(InitialStates):
             torch.zeros(self._batch_size, self._hidden_size),
         )
 
-    def lif_lsnn_random_state(self):
+    def random_state(self):
         return LSNNState(
             torch.rand(self._batch_size, self._hidden_size),
             torch.zeros(self._batch_size, self._hidden_size),
@@ -76,7 +76,7 @@ class LSNNInitState(InitialStates):
 
 
 class LIFAdExInitState(InitialStates):
-    def lif_adex_zero_state(self):
+    def zero_state(self):
         return LIFAdExState(
             torch.zeros(self._batch_size, self._hidden_size),
             torch.zeros(self._batch_size, self._hidden_size),
@@ -84,7 +84,7 @@ class LIFAdExInitState(InitialStates):
             torch.zeros(self._batch_size, self._hidden_size),
         )
 
-    def lif_lif_adex_random_state(self):
+    def random_state(self):
         return LIFAdExState(
             torch.rand(self._batch_size, self._hidden_size),
             torch.zeros(self._batch_size, self._hidden_size),

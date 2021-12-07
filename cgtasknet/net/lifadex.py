@@ -28,8 +28,10 @@ class SNNlifadex(torch.nn.Module):
             self.alif = snn.LIFAdExRecurrent(feature_size, hidden_size)
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
-    def forward(self, x: torch.tensor) -> Tuple[torch.tensor, LIFAdExState]:
-        out, state = self.alif(x)
+    def forward(
+        self, x: torch.tensor, state: Optional[LIFAdExState] = None
+    ) -> Tuple[torch.tensor, LIFAdExState]:
+        out, state = self.alif(x, state=state)
         out = self.exp_f(out)
         return (out, state)
 
