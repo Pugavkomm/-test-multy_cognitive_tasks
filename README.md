@@ -2,13 +2,15 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # cgtasknet
-##### Table of Contents  
+
+## Table of Contents
+
 [About](#About)  
 [Requirements](#Requirements)  
-
-
+[Tasks](#Tasks)
 
 ## About
+
 A library aimed at studying the dynamics of spiking neural networks while solving various cognitive tasks:
 
 1. Romo task;
@@ -17,7 +19,7 @@ A library aimed at studying the dynamics of spiking neural networks while solvin
 4. Pro-saccade;
 5. etc;
 
-***
+---
 
 ## Requirements
 
@@ -102,4 +104,10 @@ Werkzeug==2.0.2
 yarl==1.7.0
 ```
 
+## Tasks
 
+Several classes of cognitive tasks are considered:
+
+1. [Romo task](https://www.nature.com/articles/20939)
+1. [Context decision making task](https://www.nature.com/articles/nature12742)
+1. ...
