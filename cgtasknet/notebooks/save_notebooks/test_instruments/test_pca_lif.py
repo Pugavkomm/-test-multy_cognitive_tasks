@@ -49,7 +49,7 @@ model = SNNlifadex(feature_size, hidden_size, output_size)
 if True:
     model.load_state_dict(
         torch.load(
-            "./cgtasknet/notebooks/save_notebooks/test_instruments/lif_adex_romo_and_ctx_1510_iterations_steps"
+            "./cgtasknet/notebooks/save_notebooks/test_instruments/lif_adex_romo_and_ctx_1510_iterations_steps_lr_1e-3"
         )
     )
 init_state = LIFAdExInitState(batch_size, hidden_size)
