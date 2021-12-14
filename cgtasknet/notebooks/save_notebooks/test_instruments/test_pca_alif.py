@@ -9,7 +9,7 @@ from cgtasknet.net.lifadex import SNNlifadex
 from cgtasknet.net.states import LIFAdExInitState
 from cgtasknet.tasks.tasks import WorkingMemory
 
-number_of_tasks = 8
+number_of_tasks = 1
 task_list = [("WorkingMemory", dict()), ("ContextDM", dict())]
 tasks = dict(task_list)
 params = dict(
@@ -49,15 +49,15 @@ model = SNNlifadex(feature_size, hidden_size, output_size)
 if True:
     model.load_state_dict(
         torch.load(
-            "./cgtasknet/notebooks/save_notebooks/test_instruments/lif_adex_romo_and_ctx_1510_iterations_steps"
+            "./cgtasknet/notebooks/save_notebooks/test_instruments/lif_adex_romo_and_ctx_1510_iterations_steps_lr_1e-3_copy"
         )
     )
 init_state = LIFAdExInitState(batch_size, hidden_size)
 first_state = init_state.zero_state()
 second_state = init_state.random_state()
-one_trajectory_time = 5198
+one_trajectory_time = int(5198 / 2) - 1
 v_mean = torch.zeros((one_trajectory_time, batch_size, hidden_size))
-number_of_trials = 100
+number_of_trials = 500
 for trial in tqdm(range(number_of_trials)):
     inputs, target_out = Task.dataset(1)
     data = np.zeros((inputs.shape[0], batch_size, feature_size))
@@ -66,14 +66,14 @@ for trial in tqdm(range(number_of_trials)):
     data[:, :, 7] = inputs[:, :, 1]
     data += np.random.normal(0, 0.01, size=(data.shape))
     data = torch.from_numpy(data).type(torch.float32)
-    inputs, target_out = Task2.dataset(1)
-    data2 = np.zeros((inputs.shape[0], batch_size, feature_size))
-    data2[:, :, 0] = inputs[:, :, 0]
-    data2[:, :, 2] = 1
-    data2[:, :, 7] = inputs[:, :, 1]
-    data2 += np.random.normal(0, 0.01, size=(data.shape))
-    data2 = torch.from_numpy(data2).type(torch.float32)
-    data = torch.concat((data, data2), axis=0)
+    # inputs, target_out = Task2.dataset(1)
+    # data2 = np.zeros((inputs.shape[0], batch_size, feature_size))
+    # data2[:, :, 0] = inputs[:, :, 0]
+    # data2[:, :, 2] = 1
+    # data2[:, :, 7] = inputs[:, :, 1]
+    # data2 += np.random.normal(0, 0.01, size=(data.shape))
+    # data2 = torch.from_numpy(data2).type(torch.float32)
+    # data = torch.concat((data, data2), axis=0)
     # target_out = torch.from_numpy(target_out).type(torch.float)
 
     states_generator = SNNStates(model)
@@ -94,19 +94,44 @@ for trial in tqdm(range(number_of_trials)):
     # plt.show()
     v_mean += v
 v_mean /= float(number_of_trials)
-pca = PCA(2).decompose(v_mean.reshape(v_mean.shape[0], v_mean.shape[2]))
-cmap = np.arange(0, len(v_mean))
-plt.plot(pca.numpy()[:, 0], pca.numpy()[:, 1], "--", linewidth=1)
-plt.scatter(pca.numpy()[:, 0], pca.numpy()[:, 1], c=cmap, cmap="jet", s=2)
-plt.plot(pca.numpy()[0, 0], pca.numpy()[0, 1], "*", label="Start")
-plt.plot(pca.numpy()[500, 0], pca.numpy()[500, 1], "*", markersize=20, label="500ms")
-plt.plot(pca.numpy()[1000, 0], pca.numpy()[1000, 1], "o", markersize=10, label="1000ms")
-plt.plot(pca.numpy()[1500, 0], pca.numpy()[1500, 1], "o", markersize=10, label="1500ms")
-plt.plot(pca.numpy()[2500, 0], pca.numpy()[2500, 1], "o", markersize=10, label="2500ms")
-plt.plot(pca.numpy()[3000, 0], pca.numpy()[3000, 1], "o", markersize=10, label="3000ms")
-plt.plot(pca.numpy()[3500, 0], pca.numpy()[3500, 1], "o", markersize=10, label="3500ms")
-plt.plot(pca.numpy()[4000, 0], pca.numpy()[4000, 1], "o", markersize=10, label="4000ms")
+print(f"v_mean = {v_mean.shape}")
+v_mean = v_mean.reshape(v_mean.shape[0], v_mean.shape[2])
+
+_, derivation1 = PCA(1, True).decompose(v_mean)
+_, derivation2 = PCA(2, True).decompose(v_mean)
+_, derivation3 = PCA(3, True).decompose(v_mean)
+pca, derivation4 = PCA(4, True).decompose(v_mean)
+print(f"derivation 1: {derivation1 * 100}; derivation2 = {derivation2 * 100};")
+print(f"derivation 3: {derivation3 * 100}; derivation4 = {derivation4 * 100};")
+print(f"pca.shape={pca.shape}")
+
+
+def plot_pca(x, y, times=(0, 0, 0, 0), cmap="jet"):
+    c = np.arange(0, len(x))
+    plt.plot(x, y, "--", linewidth=1)
+    plt.scatter(x, y, c=c, s=4, cmap=cmap)
+    plt.plot(x[times[0]], y[times[0]], "*", markersize=15, label="Start")
+    for i in range(1, len(times)):
+        plt.plot(
+            x[times[i]], y[times[i]], "*", markersize=15, label=f"time = {times[i]}"
+        )
+
+
+times = (0, 500, 1000, 1500)
+plt.subplot(221)
+plt.title("x - 1, y - 2")
+plot_pca(pca[:, 0], pca[:, 1], times=times)
+plt.subplot(222)
+plt.title("x - 2, y - 3")
+plot_pca(pca[:, 1], pca[:, 2], times=times)
+plt.subplot(223)
+plt.title("x - 3, y - 4")
+plot_pca(pca[:, 2], pca[:, 3], times=times)
+plt.subplot(224)
+plt.title("x - 1, y - 3")
+plot_pca(pca[:, 0], pca[:, 2], times=times)
 plt.legend()
+plt.tight_layout()
 plt.show()
 
 plt.plot(pca.numpy()[:, 0], "--", linewidth=1)
