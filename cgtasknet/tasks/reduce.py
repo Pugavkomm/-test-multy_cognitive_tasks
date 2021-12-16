@@ -627,14 +627,20 @@ class MultyReduceTasks(ReduceTaskCognitive):
         inputs_plus_rule = np.zeros((inputs.shape[0], self._batch_size, self._ob_size))
         inputs_plus_rule[:, :, -len(self._task_list) + current_task] = 1
         inputs_plus_rule[:, :, : -len(self._task_list)] = inputs
-        delay_after = np.zeros(
+        delay_inputs_after = np.zeros(
             (
                 self._delay_between_trial,
                 inputs_plus_rule.shape[1],
                 inputs_plus_rule.shape[2],
             )
         )
-        inputs_plus_rule = np.concatenate((inputs_plus_rule, delay_after), axis=0)
+        delay_outputs_after = np.zeros(
+            (self._delay_between_trial, outputs.shape[1], outputs.shape[2])
+        )
+        inputs_plus_rule = np.concatenate(
+            (inputs_plus_rule, delay_inputs_after), axis=0
+        )
+        outputs = np.concatenate((outputs, delay_outputs_after))
         return inputs_plus_rule, outputs
 
     def one_dataset(self):
