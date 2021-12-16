@@ -39,9 +39,7 @@ class DefaultParams:
                 [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.25), ("n_mods", 2)]
             )
         else:
-            raise ValueError(f'Task: {self._task} is not supported')
-
-        
+            raise ValueError(f"Task: {self._task} is not supported")
 
 
 class ReduceTaskCognitive:
