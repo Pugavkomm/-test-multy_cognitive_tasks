@@ -223,7 +223,7 @@ class DMTaskRandomMod(DMTask):
         self._n_mods = params["n_mods"]
         self._ob_size += self._n_mods - 1
 
-    def one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
+    def _one_dataset_mod(self, mode: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Generate a single dataset .
 
@@ -233,10 +233,34 @@ class DMTaskRandomMod(DMTask):
         temp, outputs = self._one_dataset()
         T = temp.shape[0]
         inputs = np.zeros((T, self._batch_size, self._ob_size))
-        curent_mod = np.random.randint(0, self._n_mods)
         inputs[:, :, 0] = temp[:, :, 0]
-        inputs[:, :, 1 + curent_mod] = temp[:, :, 1]
+        inputs[:, :, 1 + mode] = temp[:, :, 1]
         return inputs, outputs
+
+    def one_dataset(self, mode: Optional[int] = None):
+        if mode is None:
+            mode = np.random.randint(0, self._n_mods)
+        return self._one_dataset_mod(mode)
+
+
+class DMTask1(DMTaskRandomMod):
+    def __init__(
+        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+    ) -> None:
+        super().__init__(params, batch_size, mode)
+
+    def one_dataset(self, mode=0):
+        return self._one_dataset_mod(mode)
+
+
+class DMTask2(DMTaskRandomMod):
+    def __init__(
+        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+    ) -> None:
+        super().__init__(params, batch_size, mode)
+
+    def one_dataset(self, mode=0):
+        return self._one_dataset_mod(mode)
 
 
 class RomoTask(ReduceTaskCognitive):
@@ -328,7 +352,7 @@ class RomoTaskRandomMod(RomoTask):
         self._n_mods = params["n_mods"]
         self._ob_size += self._n_mods - 1
 
-    def one_dataset(self):
+    def _one_dataset_mod(self, mode: int):
         """
         Generate a single model .
 
@@ -338,10 +362,36 @@ class RomoTaskRandomMod(RomoTask):
         temp, outputs = self._one_dataset()
         T = temp.shape[0]
         inputs = np.zeros((T, self._batch_size, self._ob_size))
-        curent_mod = np.random.randint(0, self._n_mods)
         inputs[:, :, 0] = temp[:, :, 0]
-        inputs[:, :, 1 + curent_mod] = temp[:, :, 1]
+        inputs[:, :, 1 + mode] = temp[:, :, 1]
         return inputs, outputs
+
+    def one_dataset(self, mode: Optional[int] = None):
+        if mode is None:
+            mode = np.random.randint(0, self._n_mods)
+        return self._one_dataset_mod(mode)
+
+
+class RomoTask1(RomoTaskRandomMod):
+    def __init__(
+        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+    ) -> None:
+
+        super().__init__(params, batch_size, mode)
+
+    def one_dataset(self, mode=0):
+        return self._one_dataset_mod(mode)
+
+
+class RomoTask2(RomoTaskRandomMod):
+    def __init__(
+        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+    ) -> None:
+
+        super().__init__(params, batch_size, mode)
+
+    def one_dataset(self, mode=1):
+        return self._one_dataset_mod(mode)
 
 
 class CtxDMTask(ReduceTaskCognitive):
@@ -363,8 +413,10 @@ class CtxDMTask(ReduceTaskCognitive):
             batch_size (int): [description]
             mode (str, optional): [description]. Defaults to "random".
         """
+        if params is None:
+            params = DefaultParams("CtxDMTask").generate_params()
         super().__init__(params, batch_size, mode)
-        params = DefaultParams("CtxDMTask").generate_params()
+
         self.DMTask = DMTask(params, batch_size, mode)
         self._ob_size = 3
         self._act_size = 3
@@ -439,7 +491,9 @@ class CtxDM1(CtxDMTask):
         CtxDMTask ([type]): [description]
     """
 
-    def __init__(self, params: dict, batch_size: int, mode: str = "random"):
+    def __init__(
+        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+    ):
         """
         Initialize the model .
 
@@ -468,7 +522,9 @@ class CtxDM2(CtxDMTask):
         CtxDMTask ([type]): [description]
     """
 
-    def __init__(self, params: dict, batch_size: int, mode: str = "random"):
+    def __init__(
+        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+    ):
         """
         Initialize the model .
 
@@ -485,10 +541,27 @@ class CtxDM2(CtxDMTask):
 
 
 class MultyReduceTasks(ReduceTaskCognitive):
+    """
+    The class method for creating a multilereduce task .
+
+    Args:
+        ReduceTaskCognitive ([list] or [dict]): [If list: list of tasks.
+        If dict: dict tasks and their parameters (see [DefaultParameters])]
+
+    Returns:
+        [type]: [description]
+    """
+
     task_list = [
         ("DMTask", DMTaskRandomMod),
         ("RomoTask", RomoTaskRandomMod),
         ("CtxDMTask", CtxDMTask),
+        ("RomoTask1", RomoTask1),
+        ("RomoTask2", RomoTask2),
+        ("DMTask1", DMTask1),
+        ("DMTask2", DMTask2),
+        ("CtxDMTask1", CtxDM1),
+        ("CtxDMTask2", CtxDM2),
     ]
     task_list.sort()
     TASKSDICT = dict(task_list)
