@@ -43,3 +43,12 @@ def test_dm_rm_task_get_params():
     def_params = DefaultParams("DMTaskRandomMod").generate_params()
     assert DMTaskRandomMod().params == def_params
     assert (DMTaskRandomMod(batch_size=10).batch_size) == 10
+
+
+def test_correct_target_dm_task():
+    task = DMTask(batch_size=10)
+    for _ in range(100):
+        inputs, outputs = task.dataset(1)
+        for j in range(10):
+            assert (inputs[0, j, 1] < 0.5) == (outputs[-1, j, 1] == 1)
+            assert (inputs[0, j, 1] < 0.5) != (outputs[-1, j, 2] == 1)

@@ -1,3 +1,10 @@
+"""
+In reduced problems, we use two modes, which
+are quoted in two different directions. Some
+of the tasks can only be transferred to one mod.
+The contextual task is transferred to two modes at once.
+The network must ignore the wrong mod.
+"""
 from typing import Optional, Tuple, Union
 
 import numpy as np
@@ -265,7 +272,13 @@ class DMTask2(DMTaskRandomMod):
 
 class RomoTask(ReduceTaskCognitive):
     """
-    Constructs a RiveTask .
+    The challenge is for the subjects or the network to
+    remember the first stimulus. Then, after the delay time,
+    the second stimulus comes. The network must compare this
+    incentive and respond correctly.
+
+    Ref: https://www.nature.com/articles/20939
+
 
     Args:
         ReduceTaskCognitive ([type]): [description]
@@ -572,6 +585,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         tasks: Union[dict[str, dict[str, float]], list[str]],
         batch_size: int = 1,
         mode: str = "random",
+        delay_between_trial=1000,  # iterations
     ):
         """
         Initialize the object with the initial state of the model .
@@ -581,6 +595,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
             batch_size (int, optional): [description]. Defaults to 1.
             mode (str, optional): [description]. Defaults to "random".
         """
+        self._delay_between_trial = delay_between_trial
         self._initial_tasks_list = dict()
         if type(tasks) == list:
             for task_name in tasks:
@@ -612,6 +627,14 @@ class MultyReduceTasks(ReduceTaskCognitive):
         inputs_plus_rule = np.zeros((inputs.shape[0], self._batch_size, self._ob_size))
         inputs_plus_rule[:, :, -len(self._task_list) + current_task] = 1
         inputs_plus_rule[:, :, : -len(self._task_list)] = inputs
+        delay_after = np.zeros(
+            (
+                self._delay_between_trial,
+                inputs_plus_rule.shape[1],
+                inputs_plus_rule.shape[2],
+            )
+        )
+        inputs_plus_rule = np.concatenate((inputs_plus_rule, delay_after), axis=0)
         return inputs_plus_rule, outputs
 
     def one_dataset(self):
