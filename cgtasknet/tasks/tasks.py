@@ -4,6 +4,16 @@ import numpy as np
 
 
 def _compare_time(f_time, interval):
+    """
+    Compares time with interval less than interval
+
+    Args:
+        f_time ([type]): [description]
+        interval ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     if f_time < interval:
         f_time = interval
     elif f_time % interval != 0:
@@ -12,6 +22,13 @@ def _compare_time(f_time, interval):
 
 
 class TaskCognitive:
+    """
+    A class method to create a TaskCognitive class .
+
+    Returns:
+        [type]: [description]
+    """
+
     ob_size = 0
     act_size = 0
 

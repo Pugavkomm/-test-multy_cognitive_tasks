@@ -38,8 +38,10 @@ class DefaultParams:
             return dict(
                 [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.25), ("n_mods", 2)]
             )
+        else:
+            raise ValueError(f'Task: {self._task} is not supported')
 
-        return None
+        
 
 
 class ReduceTaskCognitive:
