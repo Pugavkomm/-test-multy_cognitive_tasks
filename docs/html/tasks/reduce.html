@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>tasks.reduce API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="In reduced problems, we use two modes, which
+are quoted in two different directions. Some
+of the tasks can only be transferred to one mod.
+The …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +25,23 @@
 <h1 class="title">Module <code>tasks.reduce</code></h1>
 </header>
 <section id="section-intro">
+<p>In reduced problems, we use two modes, which
+are quoted in two different directions. Some
+of the tasks can only be transferred to one mod.
+The contextual task is transferred to two modes at once.
+The network must ignore the wrong mod.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import Optional, Tuple, Union
+<pre><code class="python">&#34;&#34;&#34;
+In reduced problems, we use two modes, which
+are quoted in two different directions. Some
+of the tasks can only be transferred to one mod.
+The contextual task is transferred to two modes at once.
+The network must ignore the wrong mod.
+&#34;&#34;&#34;
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -1032,7 +1047,7 @@ def params(self):
 <h3>Methods</h3>
 <dl>
 <dt id="tasks.reduce.CtxDMTask.one_dataset"><code class="name flex">
-<span>def <span class="ident">one_dataset</span></span>(<span>self, context: int = 1, *args, **kwargs)</span>
+<span>def <span class="ident">one_dataset</span></span>(<span>self, context: int = 0, *args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a single dataset with one context .</p>
