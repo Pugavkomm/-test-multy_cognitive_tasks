@@ -293,7 +293,13 @@ class DMTask2(DMTaskRandomMod):
 
 class RomoTask(ReduceTaskCognitive):
     &#34;&#34;&#34;
-    Constructs a RiveTask .
+    The challenge is for the subjects or the network to
+    remember the first stimulus. Then, after the delay time,
+    the second stimulus comes. The network must compare this
+    incentive and respond correctly.
+
+    Ref: https://www.nature.com/articles/20939
+
 
     Args:
         ReduceTaskCognitive ([type]): [description]
@@ -1026,7 +1032,7 @@ def params(self):
 <h3>Methods</h3>
 <dl>
 <dt id="tasks.reduce.CtxDMTask.one_dataset"><code class="name flex">
-<span>def <span class="ident">one_dataset</span></span>(<span>self, context: int = 0, *args, **kwargs)</span>
+<span>def <span class="ident">one_dataset</span></span>(<span>self, context: int = 1, *args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a single dataset with one context .</p>
@@ -1957,7 +1963,11 @@ def params(self) -&gt; dict:
 <span>(</span><span>params: Optional[dict] = None, batch_size: int = 1, mode: str = 'random')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Constructs a RiveTask .</p>
+<div class="desc"><p>The challenge is for the subjects or the network to
+remember the first stimulus. Then, after the delay time,
+the second stimulus comes. The network must compare this
+incentive and respond correctly.</p>
+<p>Ref: <a href="https://www.nature.com/articles/20939">https://www.nature.com/articles/20939</a></p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>ReduceTaskCognitive</code></strong> :&ensp;<code>[type]</code></dt>
@@ -1979,7 +1989,13 @@ def params(self) -&gt; dict:
 </summary>
 <pre><code class="python">class RomoTask(ReduceTaskCognitive):
     &#34;&#34;&#34;
-    Constructs a RiveTask .
+    The challenge is for the subjects or the network to
+    remember the first stimulus. Then, after the delay time,
+    the second stimulus comes. The network must compare this
+    incentive and respond correctly.
+
+    Ref: https://www.nature.com/articles/20939
+
 
     Args:
         ReduceTaskCognitive ([type]): [description]
