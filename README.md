@@ -13,11 +13,11 @@
 
 A library aimed at studying the dynamics of spiking neural networks while solving various cognitive tasks:
 
-1. Romo task;
-2. Context decision-making;
-3. Antisaccade;
-4. Pro-saccade;
-5. etc;
+1.  Romo task;
+2.  Context decision-making;
+3.  Antisaccade;
+4.  Pro-saccade;
+5.  etc;
 
 ---
 
@@ -25,9 +25,9 @@ A library aimed at studying the dynamics of spiking neural networks while solvin
 
 Main dependencies:
 
-1. [torch](https://pytorch.org/), [norse](https://github.com/norse/norse) -- Model and learning;
-1. [numpy](https://numpy.org/) -- Prepare datasets;
-1. [matplotlib](https://matplotlib.org/) -- Data visualization.
+1.  [torch](https://pytorch.org/), [norse](https://github.com/norse/norse) -- Model and learning;
+1.  [numpy](https://numpy.org/) -- Prepare datasets;
+1.  [matplotlib](https://matplotlib.org/) -- Data visualization.
 
 ```
 absl-py==0.15.0
@@ -108,6 +108,6 @@ yarl==1.7.0
 
 Several classes of cognitive tasks are considered:
 
-1. [Romo task](https://www.nature.com/articles/20939)
-1. [Context decision making task](https://www.nature.com/articles/nature12742)
-1. ...
+1.  [Romo task](https://www.nature.com/articles/20939)
+1.  [Context decision making task](https://www.nature.com/articles/nature12742)
+1.  ...

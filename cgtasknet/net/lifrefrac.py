@@ -29,8 +29,8 @@ class SNNLifRefrac(torch.nn.Module):
             self.lif_refrac = snn.LIFRefracRecurrent(feature_size, hidden_size)
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
-    def forward(self, x: torch.tensor) -> Tuple[torch.tensor, LIFRefracState]:
-        out, state = self.lif_refrac(x)
+    def forward(self, x: torch.tensor, state: Optional[LIFRefracState] = None) -> Tuple[torch.tensor, LIFRefracState]:
+        out, state = self.lif_refrac(x, state=state)
         out = self.exp_f(out)
         return (out, state)
 
