@@ -520,8 +520,8 @@ class MultyReduceTasks(ReduceTaskCognitive):
                     params=tasks[task_name], batch_size=batch_size, mode=mode
                 )
         self._tasks = tasks
-        self._ob_size, self._act_size = self.feature_and_act_size
-        self._ob_size += len(tasks)
+        self._ob_size = 3 + len(tasks)
+        self._act_size = 3
         self._sorted_tasks()
         self._create_task_list()
         self._batch_size = batch_size
@@ -567,9 +567,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         Returns:
             Tuple[int, int]: [description]
         """
-        ob_size = 3
-        act_size = 3
-        return ob_size, act_size
+        return self._ob_size, self._act_size
 
     @property
     def feature_and_act_every_task_size(self) -> dict[str, Tuple[int, int]]:
