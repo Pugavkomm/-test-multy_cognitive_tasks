@@ -18,14 +18,20 @@ class SNNAlif(torch.nn.Module):
         output_size,
         neuron_parameters: Optional[LSNNParameters] = None,
         tau_filter_inv: float = default_tau_filter_inv,
+        input_weights: Optional[torch.Tensor] = None,
     ) -> None:
         super(SNNAlif, self).__init__()
         if neuron_parameters is not None:
             self.alif = snn.LSNNRecurrent(
-                feature_size, hidden_size, p=neuron_parameters
+                feature_size,
+                hidden_size,
+                p=neuron_parameters,
+                input_weights=input_weights,
             )
         else:
-            self.alif = snn.LSNNRecurren(feature_size, hidden_size)
+            self.alif = snn.LSNNRecurrent(
+                feature_size, hidden_size, input_weights=input_weights
+            )
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
     def forward(self, x: torch.tensor) -> Tuple[torch.tensor, LSNNState]:

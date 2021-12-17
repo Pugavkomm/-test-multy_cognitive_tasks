@@ -3,7 +3,7 @@ from ..tasks.reduce import DefaultParams
 
 def test_default_params_dm_task():
     assert DefaultParams("DMTask").generate_params() == dict(
-        [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.75)]
+        [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.75), ("value", None)]
     )
 
 

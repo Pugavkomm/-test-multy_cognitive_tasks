@@ -18,14 +18,20 @@ class SNNlifadex(torch.nn.Module):
         output_size,
         neuron_parameters: Optional[LIFAdExParameters] = None,
         tau_filter_inv: float = default_tau_filter_inv,
+        input_weights: Optional[torch.Tensor] = None,
     ) -> None:
         super(SNNlifadex, self).__init__()
         if neuron_parameters is not None:
             self.alif = snn.LIFAdExRecurrent(
-                feature_size, hidden_size, p=neuron_parameters
+                feature_size,
+                hidden_size,
+                p=neuron_parameters,
+                input_weights=input_weights,
             )
         else:
-            self.alif = snn.LIFAdExRecurrent(feature_size, hidden_size)
+            self.alif = snn.LIFAdExRecurrent(
+                feature_size, hidden_size, input_weights=input_weights
+            )
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
     def forward(

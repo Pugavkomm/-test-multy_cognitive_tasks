@@ -9,6 +9,10 @@ def test_dm_task_run_one_data_set():
     DMTask().one_dataset()
 
 
+def test_dm_task_run_just_run_some_data_set():
+    DMTask().dataset(12)
+
+
 def test_dm_task_run_some_datasets():
     inputs, outputs = DMTask(batch_size=10).dataset(10)
     assert inputs.shape[1] == 10
@@ -52,3 +56,34 @@ def test_correct_target_dm_task():
         for j in range(10):
             assert (inputs[0, j, 1] < 0.5) == (outputs[-1, j, 1] == 1)
             assert (inputs[0, j, 1] < 0.5) != (outputs[-1, j, 2] == 1)
+
+
+def test_value_mode():
+    params = DefaultParams("DMTask").generate_params()
+    params["value"] = 1
+    task = DMTask(params=params, batch_size=10, mode="value")
+    task.dataset(10)
+
+
+def test_value_mode_correct_generate_value_equal_1():
+    params = DefaultParams("DMTask").generate_params()
+    params["value"] = 1
+    task = DMTask(params=params, batch_size=10, mode="value")
+    inputs, outputs = task.dataset(1)
+    for i in range(10):
+        assert inputs[0, i, 0] == 1
+        assert inputs[0, i, 1] == 1
+        assert outputs[0, i, 0] == 1
+        assert outputs[0, i, 1] == 0
+
+
+def test_value_mode_correct_generate_value_equal_0_1():
+    params = DefaultParams("DMTask").generate_params()
+    params["value"] = 0.1
+    task = DMTask(params=params, batch_size=10, mode="value")
+    inputs, outputs = task.dataset(1)
+    for i in range(10):
+        assert inputs[0, i, 0] == 1
+        assert inputs[0, i, 1] == 0.1
+        assert outputs[0, i, 0] == 1
+        assert outputs[0, i, 1] == 0

@@ -32,7 +32,14 @@ class DefaultParams:
             [type]: [description]
         """
         if self._task == "DMTask":
-            return dict([("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.75)])
+            return dict(
+                [
+                    ("dt", 1e-3),
+                    ("delay", 0.3),
+                    ("trial_time", 0.75),
+                    ("value", None),
+                ]
+            )
         elif self._task == "RomoTask":
             return dict([("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.25)])
         elif self._task == "CtxDMTask":
@@ -171,8 +178,12 @@ class DMTask(ReduceTaskCognitive):
             batch_size (int, optional): [description]. Defaults to 1.
             mode (str, optional): [description]. Defaults to "random".
         """
+
         if params is None:
             params = DefaultParams("DMTask").generate_params()
+        if mode == "value" and params["value"] is None:
+            raise ValueError("params is None")
+
         super().__init__(params, batch_size, mode)
         self._ob_size = 2
         self._act_size = 3
@@ -189,16 +200,21 @@ class DMTask(ReduceTaskCognitive):
         delay = int(self._params["delay"] / dt)
         if self._mode == "random":
             values = np.random.uniform(0, 1, size=(self._batch_size))
-            inputs = np.zeros((trial_time + delay, self._batch_size, self._ob_size))
-            inputs[:trial_time, :, 0] = 1
-            inputs[:trial_time, :, 1] = values[:]
-            target_outputs = np.zeros(
-                (trial_time + delay, self._batch_size, self._act_size)
-            )
-            target_outputs[:, :, 0] = inputs[:, :, 0]
-            target_outputs[trial_time:, :, 1] = values < self.threshold
-            target_outputs[trial_time:, :, 2] = values > self.threshold
-            return inputs, target_outputs
+        elif self._mode == "value":
+            values = np.ones((self._batch_size)) * self.params["value"]
+        inputs = np.zeros((trial_time + delay, self._batch_size, self._ob_size))
+        inputs[:trial_time, :, 0] = 1
+        inputs[:trial_time, :, 1] = values[:]
+        target_outputs = np.zeros(
+            (trial_time + delay, self._batch_size, self._act_size)
+        )
+        target_outputs[:, :, 0] = inputs[:, :, 0]
+        target_outputs[trial_time:, :, 1] = values < self.threshold
+        target_outputs[trial_time:, :, 2] = values > self.threshold
+        # target_outputs[:, :, 1] = values < self.threshold
+        # target_outputs[:, :, 2] = values > self.threshold
+
+        return inputs, target_outputs
 
     def one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
         return self._one_dataset()
@@ -585,7 +601,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         tasks: Union[dict[str, dict[str, float]], list[str]],
         batch_size: int = 1,
         mode: str = "random",
-        delay_between_trial=1000,  # iterations
+        delay_between_trial=0,  # iterations
     ):
         """
         Initialize the object with the initial state of the model .
@@ -627,20 +643,21 @@ class MultyReduceTasks(ReduceTaskCognitive):
         inputs_plus_rule = np.zeros((inputs.shape[0], self._batch_size, self._ob_size))
         inputs_plus_rule[:, :, -len(self._task_list) + current_task] = 1
         inputs_plus_rule[:, :, : -len(self._task_list)] = inputs
-        delay_inputs_after = np.zeros(
-            (
-                self._delay_between_trial,
-                inputs_plus_rule.shape[1],
-                inputs_plus_rule.shape[2],
+        if self._delay_between_trial > 0:
+            delay_inputs_after = np.zeros(
+                (
+                    self._delay_between_trial,
+                    inputs_plus_rule.shape[1],
+                    inputs_plus_rule.shape[2],
+                )
             )
-        )
-        delay_outputs_after = np.zeros(
-            (self._delay_between_trial, outputs.shape[1], outputs.shape[2])
-        )
-        inputs_plus_rule = np.concatenate(
-            (inputs_plus_rule, delay_inputs_after), axis=0
-        )
-        outputs = np.concatenate((outputs, delay_outputs_after))
+            delay_outputs_after = np.zeros(
+                (self._delay_between_trial, outputs.shape[1], outputs.shape[2])
+            )
+            inputs_plus_rule = np.concatenate(
+                (inputs_plus_rule, delay_inputs_after), axis=0
+            )
+            outputs = np.concatenate((outputs, delay_outputs_after))
         return inputs_plus_rule, outputs
 
     def one_dataset(self):

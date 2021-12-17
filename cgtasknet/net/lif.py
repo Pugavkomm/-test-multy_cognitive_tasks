@@ -20,10 +20,7 @@ class SNNLif(torch.nn.Module):
         tau_filter_inv: float = default_tau_filter_inv,
     ) -> None:
         super(SNNLif, self).__init__()
-        if neuron_parameters is not None:
-            self.lif = snn.LIFRecurrent(feature_size, hidden_size, p=neuron_parameters)
-        else:
-            self.lif = snn.LIFRecurrent(feature_size, hidden_size)
+        self.lif = snn.LIFRecurrent(feature_size, hidden_size, p=neuron_parameters)
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
     def forward(
