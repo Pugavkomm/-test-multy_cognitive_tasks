@@ -2,13 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from norse.torch.functional.lif import LIFParameters
+from norse.torch.functional.lif_refrac import LIFRefracParameters
 from tqdm import tqdm
 
 from cgtasknet.instrumetns.dynamic_generate import SNNStates
 from cgtasknet.instrumetns.instrument_pca import PCA
 from cgtasknet.net.lifrefrac import SNNLifRefrac
-from norse.torch.functional.lif_refrac import LIFRefracParameters
-
 from cgtasknet.net.states import LIFRefracInitState
 from cgtasknet.tasks.reduce import DefaultParams, DMTask
 

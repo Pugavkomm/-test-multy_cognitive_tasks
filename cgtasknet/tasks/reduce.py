@@ -320,7 +320,9 @@ class RomoTask(ReduceTaskCognitive):
         """
         if params is None:
             params = DefaultParams("RomoTask").generate_params()
-        if mode == "value" and (params["values"][0] is None or params["values"][1] is None):
+        if mode == "value" and (
+            params["values"][0] is None or params["values"][1] is None
+        ):
             raise ValueError("params[values][0]([1]) is None")
         super().__init__(params, batch_size, mode)
         self._ob_size = 2
@@ -342,9 +344,7 @@ class RomoTask(ReduceTaskCognitive):
         elif self._mode == "value":
             values_first = np.ones((self._batch_size)) * self._params["values"][0]
             values_second = np.ones((self._batch_size)) * self._params["values"][1]
-        inputs = np.zeros(
-            (2 * (trial_time + delay), self._batch_size, self._ob_size)
-        )
+        inputs = np.zeros((2 * (trial_time + delay), self._batch_size, self._ob_size))
         inputs[: 2 * trial_time + delay, :, 0] = 1
         inputs[:trial_time, :, 1] = values_first
         inputs[trial_time + delay : -delay, :, 1] = values_second

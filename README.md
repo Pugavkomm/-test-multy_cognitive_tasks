@@ -8,6 +8,7 @@
 [About](#About)  
 [Requirements](#Requirements)  
 [Tasks](#Tasks)
+[TODO](#TODO)
 
 ## About
 
@@ -111,3 +112,7 @@ Several classes of cognitive tasks are considered:
 1.  [Romo task](https://www.nature.com/articles/20939)
 1.  [Context decision making task](https://www.nature.com/articles/nature12742)
 1.  ...
+
+## TODO
+
+Add my own wrapper over the loading model to load parameters (and save) as well
