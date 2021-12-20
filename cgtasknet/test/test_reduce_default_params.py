@@ -15,7 +15,7 @@ def test_default_params_dm_task_random_mod():
 
 def test_default_params_romo_task():
     assert DefaultParams("RomoTask").generate_params() == dict(
-        [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.25)]
+        [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.25), ("values", (None, None))]
     )
 
 

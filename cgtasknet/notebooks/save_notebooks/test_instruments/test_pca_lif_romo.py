@@ -8,22 +8,18 @@ from cgtasknet.instrumetns.dynamic_generate import SNNStates
 from cgtasknet.instrumetns.instrument_pca import PCA
 from cgtasknet.net.lif import SNNLif
 from cgtasknet.net.states import LIFInitState
-from cgtasknet.tasks.reduce import DefaultParams, DMTask
+from cgtasknet.tasks.reduce import DefaultParams, RomoTask
 
-dmparams1 = DefaultParams("DMTask").generate_params()
-dmparams1["value"] = 0.0
-Task = DMTask(dmparams1, mode="value")
-dmparams2 = DefaultParams("DMTask").generate_params()
-dmparams2["value"] = 0.3
+dmparams1 = DefaultParams("RomoTask").generate_params()
+dmparams1["delay"] = 0.1
+dmparams1["values"] = (0.5, 0)
+Task = RomoTask(dmparams1, mode="value")
 
-Task2 = DMTask(dmparams2, mode="value")
-dmparams3 = DefaultParams("DMTask").generate_params()
-dmparams3["value"] = 0.7
+dmparams2 = DefaultParams("RomoTask").generate_params()
+dmparams2["delay"] = 0.1
+dmparams2["values"] = (0.5, 1)
+Task2 = RomoTask(dmparams2, mode="value")
 
-Task3 = DMTask(dmparams3, mode="value")
-dmparams3 = DefaultParams("DMTask").generate_params()
-dmparams3["value"] = 1.0
-Task4 = DMTask(dmparams3, mode="value")
 
 feature_size = 2
 output_size = 3
@@ -42,35 +38,34 @@ model = SNNLif(
 if True:
     model.load_state_dict(
         torch.load(
-            "./cgtasknet/notebooks/save_notebooks/test_instruments/Only_dm_lif_net_2000_epochs"
+            "./cgtasknet/notebooks/save_notebooks/test_instruments/Only_romo_lif_net"
         )
     )
 init_state = LIFInitState(batch_size, hidden_size)
 first_state = init_state.zero_state()
 second_state = init_state.random_state()
 inputs, target_out = Task.dataset(1)
-one_trajectory_time = inputs.shape[0] * 4 - 2 + 1500 + 1500
+one_trajectory_time = inputs.shape[0] * 2 - 2  # - 2 + 1500 + 1500
 v_mean = torch.zeros((one_trajectory_time, batch_size, hidden_size))
-number_of_trials = 1
+number_of_trials = 50
 for trial in tqdm(range(number_of_trials)):
     inputs, target_out = Task.dataset(1)
 
     data = inputs + np.random.normal(0, 0.01, size=(inputs.shape))
     inputs2, target_out2 = Task2.dataset(1)
-
     data2 = inputs2 + np.random.normal(0, 0.01, size=(inputs2.shape))
-    inputs3, target_out3 = Task3.dataset(1)
-    data3 = inputs3 + np.random.normal(0, 0.01, size=(inputs3.shape))
-    inputs4, target_out4 = Task4.dataset(1)
-    data4 = inputs4 + np.random.normal(0, 0.01, size=(inputs4.shape))
+    # inputs3, target_out3 = Task3.dataset(1)
+    # data3 = inputs3 + np.random.normal(0, 0.01, size=(inputs3.shape))
+    # inputs4, target_out4 = Task4.dataset(1)
+    # data4 = inputs4 + np.random.normal(0, 0.01, size=(inputs4.shape))
 
-    data = np.concatenate((data, np.zeros((500, data.shape[1], data.shape[2]))))
+    # data = np.concatenate((data, np.zeros((500, data.shape[1], data.shape[2]))))
     data = np.concatenate((data, data2), axis=0)
-    data = np.concatenate((data, np.zeros((500, data.shape[1], data.shape[2]))))
-    data = np.concatenate((data, data3))
-    data = np.concatenate((data, np.zeros((500, data.shape[1], data.shape[2]))))
-    data = np.concatenate((data, data4))
-    data = np.concatenate((data, np.zeros((1500, data.shape[1], data.shape[2]))))
+    # data = np.concatenate((data, np.zeros((500, data.shape[1], data.shape[2]))))
+    # data = np.concatenate((data, data3))
+    # data = np.concatenate((data, np.zeros((500, data.shape[1], data.shape[2]))))
+    # data = np.concatenate((data, data4))
+    # data = np.concatenate((data, np.zeros((1500, data.shape[1], data.shape[2]))))
 
     data = torch.from_numpy(data).type(torch.float32)
 
@@ -102,27 +97,32 @@ plt.plot(pca.numpy()[:, first], pca.numpy()[:, second], "--", linewidth=1)
 plt.scatter(pca.numpy()[:, first], pca.numpy()[:, second], c=cmap, cmap="jet", s=5)
 
 
-trialstop = 750
-delay = 300
-delay_beetween = 500
+trialstop = 250
+delay = 100
+delay_beetween = 100
 time = trialstop
-for i in range(4):
+for i in range(1):
 
     plt.plot(
         pca.numpy()[time, first],
         pca.numpy()[time, second],
         "*",
-        label=fr"end: time = {time}ms",
+        label=fr"first: time = {time}ms",
     )
     time += delay
     plt.plot(
         pca.numpy()[time, first],
         pca.numpy()[time, second],
         "*",
-        label=fr"end + delay: time = {time}ms",
+        label=fr"start second: time = {time}ms",
     )
-
-    time += delay_beetween + trialstop
+    time += trialstop
+    plt.plot(
+        pca.numpy()[time, first],
+        pca.numpy()[time, second],
+        "*",
+        label=fr"second: time = {time}ms",
+    )
 
 
 plt.legend()
@@ -134,11 +134,11 @@ plt.show()
 
 pca_show = 2
 plt.plot(pca.numpy()[:, pca_show], "--", linewidth=1)
-trialstop = 750
-delay = 300
-delay_beetween = 500
-time = trialstop
-for i in range(4):
+trialstop = 250
+delay = 100
+delay_beetween = 100
+time = trialstop - 2
+for i in range(1):
 
     plt.plot([time], pca.numpy()[time, pca_show], "*", c="r")
     time += delay
@@ -163,7 +163,7 @@ plt.show()
 
 inputs, target_out = Task.dataset(1)
 
-plt.plot(inputs[:, 0, 1])
+plt.plot(data[:, 0, 1].detach().cpu().numpy())
 plt.show()
 
 # plt.plot(out[:, 0, 0])

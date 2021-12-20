@@ -21,12 +21,11 @@ class SNNLifRefrac(torch.nn.Module):
         tau_filter_inv: float = default_tau_filter_inv,
     ) -> None:
         super(SNNLifRefrac, self).__init__()
-        if neuron_parameters is not None:
-            self.lif_refrac = snn.LIFRefracRecurrent(
-                feature_size, hidden_size, p=neuron_parameters
-            )
-        else:
-            self.lif_refrac = snn.LIFRefracRecurrent(feature_size, hidden_size)
+
+        self.lif_refrac = snn.LIFRefracRecurrent(
+            feature_size, hidden_size, p=neuron_parameters
+        )
+
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
     def forward(

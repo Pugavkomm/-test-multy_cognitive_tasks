@@ -41,7 +41,14 @@ class DefaultParams:
                 ]
             )
         elif self._task == "RomoTask":
-            return dict([("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.25)])
+            return dict(
+                [
+                    ("dt", 1e-3),
+                    ("delay", 0.3),
+                    ("trial_time", 0.25),
+                    ("values", (None, None)),
+                ]
+            )
         elif self._task == "CtxDMTask":
             return dict([("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.75)])
         elif self._task == "DMTaskRandomMod":
@@ -182,7 +189,7 @@ class DMTask(ReduceTaskCognitive):
         if params is None:
             params = DefaultParams("DMTask").generate_params()
         if mode == "value" and params["value"] is None:
-            raise ValueError("params is None")
+            raise ValueError("params[value] is None")
 
         super().__init__(params, batch_size, mode)
         self._ob_size = 2
@@ -313,6 +320,8 @@ class RomoTask(ReduceTaskCognitive):
         """
         if params is None:
             params = DefaultParams("RomoTask").generate_params()
+        if mode == "value" and (params["values"][0] is None or params["values"][1] is None):
+            raise ValueError("params[values][0]([1]) is None")
         super().__init__(params, batch_size, mode)
         self._ob_size = 2
         self._act_size = 3
@@ -330,20 +339,22 @@ class RomoTask(ReduceTaskCognitive):
         if self._mode == "random":
             values_first = np.random.uniform(0, 1, size=(self._batch_size))
             values_second = np.random.uniform(0, 1, size=(self._batch_size))
-            # TODO: добавить проверку на совпадения (хотя это маловероятно)
-            inputs = np.zeros(
-                (2 * (trial_time + delay), self._batch_size, self._ob_size)
-            )
-            inputs[: 2 * trial_time + delay, :, 0] = 1
-            inputs[:trial_time, :, 1] = values_first
-            inputs[trial_time + delay : -delay, :, 1] = values_second
-            target_output = np.zeros(
-                (2 * (trial_time + delay), self._batch_size, self._act_size)
-            )
-            target_output[:, :, 0] = inputs[:, :, 0]
-            target_output[2 * trial_time + delay :, :, 1] = values_first < values_second
-            target_output[2 * trial_time + delay :, :, 2] = values_second < values_first
-            return inputs, target_output
+        elif self._mode == "value":
+            values_first = np.ones((self._batch_size)) * self._params["values"][0]
+            values_second = np.ones((self._batch_size)) * self._params["values"][1]
+        inputs = np.zeros(
+            (2 * (trial_time + delay), self._batch_size, self._ob_size)
+        )
+        inputs[: 2 * trial_time + delay, :, 0] = 1
+        inputs[:trial_time, :, 1] = values_first
+        inputs[trial_time + delay : -delay, :, 1] = values_second
+        target_output = np.zeros(
+            (2 * (trial_time + delay), self._batch_size, self._act_size)
+        )
+        target_output[:, :, 0] = inputs[:, :, 0]
+        target_output[2 * trial_time + delay :, :, 1] = values_first < values_second
+        target_output[2 * trial_time + delay :, :, 2] = values_second < values_first
+        return inputs, target_output
 
     def one_dataset(self):
         """

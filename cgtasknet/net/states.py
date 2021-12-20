@@ -45,14 +45,16 @@ class LIFInitState(InitialStates):
 
 class LIFRefracInitState(InitialStates):
     def zero_state(self):
+        lif_init_state = LIFInitState(self._batch_size, self._hidden_size)
         return LIFRefracState(
-            self.lif_state.zero_state(),
+            lif_init_state.zero_state(),
             torch.zeros(self._batch_size, self._hidden_size),
         )
 
-    def lif_refrac_random_state(self):
+    def random_state(self):
+        lif_init_state = LIFInitState(self._batch_size, self._hidden_size)
         return LIFRefracState(
-            self.lif_state.random_state(),
+            lif_init_state.random_state(),
             torch.zeros(self._batch_size, self._hidden_size),
         )
 

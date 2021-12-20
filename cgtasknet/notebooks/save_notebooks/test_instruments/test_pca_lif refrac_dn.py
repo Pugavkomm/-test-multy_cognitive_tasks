@@ -6,8 +6,10 @@ from tqdm import tqdm
 
 from cgtasknet.instrumetns.dynamic_generate import SNNStates
 from cgtasknet.instrumetns.instrument_pca import PCA
-from cgtasknet.net.lif import SNNLif
-from cgtasknet.net.states import LIFInitState
+from cgtasknet.net.lifrefrac import SNNLifRefrac
+from norse.torch.functional.lif_refrac import LIFRefracParameters
+
+from cgtasknet.net.states import LIFRefracInitState
 from cgtasknet.tasks.reduce import DefaultParams, DMTask
 
 dmparams1 = DefaultParams("DMTask").generate_params()
@@ -27,25 +29,28 @@ Task4 = DMTask(dmparams3, mode="value")
 
 feature_size = 2
 output_size = 3
-hidden_size = 400
+hidden_size = 200
 batch_size = 1
-neuron_parameters = LIFParameters(
-    alpha=torch.as_tensor(50), method="super", v_th=torch.as_tensor(0.65)
+neuron_parameters = LIFRefracParameters(
+    LIFParameters(
+        alpha=torch.as_tensor(50), method="super", v_th=torch.as_tensor(0.65)
+    ),
+    rho_reset=torch.as_tensor(1),
 )
-model = SNNLif(
+model = SNNLifRefrac(
     feature_size,
     hidden_size,
     output_size,
     neuron_parameters=neuron_parameters,
-    tau_filter_inv=500,
+    tau_filter_inv=600,
 )
 if True:
     model.load_state_dict(
         torch.load(
-            "./cgtasknet/notebooks/save_notebooks/test_instruments/Only_dm_lif_net_2000_epochs"
+            "./cgtasknet/notebooks/save_notebooks/test_instruments/Only_dm_lif_refrac_net"
         )
     )
-init_state = LIFInitState(batch_size, hidden_size)
+init_state = LIFRefracInitState(batch_size, hidden_size)
 first_state = init_state.zero_state()
 second_state = init_state.random_state()
 inputs, target_out = Task.dataset(1)
@@ -82,9 +87,9 @@ for trial in tqdm(range(number_of_trials)):
     s = []
     i = []
     for j in range(len(states)):
-        v.append(states[j].v)
-        s.append(states[j].z)
-        i.append(states[j].i)
+        v.append(states[j].lif.v)
+        s.append(states[j].lif.z)
+        i.append(states[j].lif.i)
     v = torch.stack(v).detach()
     # s = torch.stack(s).detach()
     # i = torch.stack(i).detach()
