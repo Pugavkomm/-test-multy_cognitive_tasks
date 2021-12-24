@@ -613,6 +613,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         batch_size: int = 1,
         mode: str = "random",
         delay_between_trial=0,  # iterations
+        number_of_inputs=2
     ):
         """
         Initialize the object with the initial state of the model .
@@ -635,7 +636,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
                     params=tasks[task_name], batch_size=batch_size, mode=mode
                 )
         self._tasks = tasks
-        self._ob_size = 3 + len(tasks)
+        self._ob_size = 1 + number_of_inputs + len(tasks)
         self._act_size = 3
         self._sorted_tasks()
         self._create_task_list()
