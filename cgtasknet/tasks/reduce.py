@@ -612,8 +612,8 @@ class MultyReduceTasks(ReduceTaskCognitive):
         tasks: Union[dict[str, dict[str, float]], list[str]],
         batch_size: int = 1,
         mode: str = "random",
-        delay_between_trial=0,  # iterations
-        number_of_inputs=2,
+        delay_between_trial: int = 0,  # iterations
+        number_of_inputs: int = 2,
     ):
         """
         Initialize the object with the initial state of the model .
