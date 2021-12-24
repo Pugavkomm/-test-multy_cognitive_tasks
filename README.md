@@ -6,6 +6,7 @@
 ## Table of Contents
 
 [About](#About)  
+[Installation](#Installation)
 [Requirements](#Requirements)  
 [Tasks](#Tasks)
 [TODO](#TODO)
@@ -15,12 +16,32 @@
 A library aimed at studying the dynamics of spiking neural networks while solving various cognitive tasks:
 
 1.  Romo task;
-2.  Context decision-making;
-3.  Antisaccade;
-4.  Pro-saccade;
-5.  etc;
+2.  Decision-making task;
+3.  Context decision-making task;
+4.  Antisaccade task;
+5.  Pro-saccade task;
+6.  Go tasks family.
 
 ---
+
+## Installation
+
+### Installation from source code
+
+1. `git clone https://github.com/Pugavkomm/cgtasknet.git`
+2. `python setup.py install`
+> You can create your environment and install all the libraries you need to create networks
+1. `git clone https://github.com/Pugavkomm/cgtasknet.git`
+2. `python3 -m venv env`
+3. `source env/bin/activate`
+4. `pip3 install -r requirements.txt`
+5. `python setup.py install`
+
+### Installation from pypi
+> TODO
+
+### Docker
+> TODO
 
 ## Requirements
 
@@ -104,6 +125,8 @@ wcwidth==0.2.5
 Werkzeug==2.0.2
 yarl==1.7.0
 ```
+
+
 
 ## Tasks
 
