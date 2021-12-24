@@ -12,23 +12,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Python
       - uses: actions/setup-python@v2
-      - uses: syphar/restore-virtualenv@v1
-        id: cache-virtualenv
-        with:
-          requirement_files: requirements.txt  # this is optional
-
-      - name: Activate env
+      - name: Install venv
         run: |
-          pytnon -m venv env
-          source env/bin/activate
-      - name: Install requirements
-        run: |
-          pip3 install -r requirements.txt
-      
-      - name: Install pytest
-        run: |
-          pip3 install pytest
-          
-      - name: Start tests
-        run: |
-          pytest
+          pip3 install venv
