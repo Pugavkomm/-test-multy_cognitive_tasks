@@ -1,4 +1,4 @@
-from ..tasks.reduce import MultyReduceTasks
+from ..tasks.reduce import DefaultParams, MultyReduceTasks
 
 
 def test_init_multy_task():
@@ -52,3 +52,30 @@ def test_run_mylty_task():
         assert outputs.shape[1] == batch_size
         assert inputs.shape[2] == task.feature_and_act_size[0]
         assert outputs.shape[2] == task.feature_and_act_size[1]
+
+
+def test_shape_for_one_input_of_mods():
+    romoparams = DefaultParams("RomoTask").generate_params()
+    romoparams["n_mods"] = 1
+    dmparams = DefaultParams("DMTask").generate_params()
+    dmparams["n_mods"] = 1
+    task_list = ["DMTask1", "RomoTask1"]
+    tasks_params = dict([(task_list[0], romoparams), (task_list[1], dmparams)])
+    task = MultyReduceTasks(tasks=tasks_params, batch_size=20, number_of_inputs=1)
+    inputs, outputs = task.dataset(10)
+    assert inputs.shape[1] == 20
+    assert inputs.shape[2] == 4  # 2 inpyuts + 2 dim rule one-hot vector
+    assert outputs.shape[0] == inputs.shape[0]
+    assert outputs.shape[1] == 20
+    assert outputs.shape[2] == 3
+
+
+def test_shape_for_two_inputs_of_mods():
+    task_list = ["DMTask1", "RomoTask1"]
+    task = MultyReduceTasks(tasks=task_list, batch_size=20, number_of_inputs=2)
+    inputs, outputs = task.dataset(10)
+    assert inputs.shape[1] == 20
+    assert inputs.shape[2] == 5
+    assert outputs.shape[0] == inputs.shape[0]
+    assert outputs.shape[1] == 20
+    assert outputs.shape[2] == 3

@@ -613,7 +613,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         batch_size: int = 1,
         mode: str = "random",
         delay_between_trial=0,  # iterations
-        number_of_inputs=2
+        number_of_inputs=2,
     ):
         """
         Initialize the object with the initial state of the model .
