@@ -605,7 +605,6 @@ class MultyReduceTasks(ReduceTaskCognitive):
     ]
     task_list.sort()
     TASKSDICT = dict(task_list)
-    n_mods = 2
 
     def __init__(
         self,
