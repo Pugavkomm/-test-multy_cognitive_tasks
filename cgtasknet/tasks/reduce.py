@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """
 In reduced problems, we use two modes, which
 are quoted in two different directions. Some
