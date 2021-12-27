@@ -8,7 +8,7 @@ def _is_correct_output(real_output: torch.Tensor, target_output: torch.Tensor) -
 
 
 class SubgroupFinder:
-    def __init__(self, dt) -> None:
+    def __init__(self, dt: float = 1e-3) -> None:
         self._dt = dt
         self._average_freq_fixation = None
         self._average_freq_answer = None

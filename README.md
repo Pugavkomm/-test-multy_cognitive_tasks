@@ -136,5 +136,7 @@ Several classes of cognitive tasks are considered:
 1.  ...
 
 ## TODO
-
-Add my own wrapper over the loading model to load parameters (and save) as well
+* **Add my own wrapper over the loading model to load parameters (and save) as well;**
+* **Add some tests for instrument_subgroups;**
+* **Add somet tests for instrument_pca;**
+* **Add some tests for all models.**
