@@ -1,6 +1,6 @@
 import torch
 
-from ..instrumetns.instrument_pca import PCA
+from ..instruments.instrument_pca import PCA
 
 
 def test_pca_number_of_components_shape():
