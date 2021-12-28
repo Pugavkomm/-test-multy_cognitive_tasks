@@ -3,6 +3,10 @@ from typing import Tuple
 import torch
 
 
+def sort_elemnts_by_another(base: any, for_sort: any):
+    return torch.as_tensor([x for _, x in sorted(zip(base, for_sort))])
+
+
 def _is_correct_output(real_output: torch.Tensor, target_output: torch.Tensor) -> bool:
     # compute mean:
     if len(real_output.shape) == 3:
@@ -89,7 +93,7 @@ class SubgroupFinder:
         self._dt = dt
 
     def get_average_freq(self):
-        if (self._average_freq_answer is None and self._average_freq_fixation is None):
+        if self._average_freq_answer is None and self._average_freq_fixation is None:
             return (None, None)
         return (
             self._average_freq_fixation / self._number_of_trials / self._dt,
