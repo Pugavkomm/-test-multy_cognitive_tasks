@@ -1,5 +1,5 @@
 from typing import Tuple
-from correct_answer import _is_correct_output
+from .correct_answer import _is_correct_output
 import torch
 
 

@@ -1,4 +1,4 @@
-from correct_answer import _is_correct_output, _is_correct_output_batches
+from .correct_answer import _is_correct_output, _is_correct_output_batches
 import torch
 
 
