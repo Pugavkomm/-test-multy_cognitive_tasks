@@ -4,6 +4,22 @@ import torch
 
 
 
+def sort_elemnts_by_another(base: any, for_sort: any):
+    return torch.as_tensor([x for _, x in sorted(zip(base, for_sort))])
+
+
+def _is_correct_output(real_output: torch.Tensor, target_output: torch.Tensor) -> bool:
+    # compute mean:
+    if len(real_output.shape) == 3:
+        real_output = real_output.reshape(real_output.shape[0], real_output.shape[2])
+    if len(target_output.shape) == 3:
+        target_output = target_output.reshape(
+            target_output.shape[0], target_output.shape[2]
+        )
+    target_mean = torch.mean(target_output, axis=0)
+    real_mean = torch.mean(real_output, axis=0)
+    return torch.argmax(target_mean).item() == torch.argmax(real_mean).item()
+
 
 
 class SubgroupFinder:
@@ -79,7 +95,7 @@ class SubgroupFinder:
         self._dt = dt
 
     def get_average_freq(self):
-        if (self._average_freq_answer is None and self._average_freq_fixation is None):
+        if self._average_freq_answer is None and self._average_freq_fixation is None:
             return (None, None)
         return (
             self._average_freq_fixation / self._number_of_trials / self._dt,
