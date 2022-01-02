@@ -24,6 +24,7 @@ def test_compute_average_freq_zeros():
     assert torch.allclose(freq_fixation, torch.zeros(4))
     assert torch.allclose(freq_answer, torch.zeros(4))
 
+
 def test_incorrect_output():
     sgf = SubgroupFinder()
     s = torch.zeros(100, 4)
