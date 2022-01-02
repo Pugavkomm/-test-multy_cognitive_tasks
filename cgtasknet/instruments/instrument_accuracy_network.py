@@ -9,6 +9,3 @@ def correct_answer(
     return _is_correct_output_batches(
         output[answer_indexes], target_output[answer_indexes]
     )
-
-
-# TODO: при инициализации сразу выполнять код. 
