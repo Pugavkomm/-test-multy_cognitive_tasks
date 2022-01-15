@@ -19,12 +19,13 @@ class SNNStates(SNNOneState):
 
     def states(self, x, initial_state):
         T = len(x)  # timesteps
-        state = initial_state
+        state = None
         outputs = []
         states = []
-        for ts in range(T - 2):
-            out, state = self.model(x[ts : ts + 2], state)
-            outputs.append(out[1])
+        for ts in range(0, T - 2):
+            out, state = self.model(x[ts], state)
+            
+            outputs.append(torch.clone(out[0, ...]))
             states.append(state)
         with torch.no_grad():
             return torch.stack(outputs), states
