@@ -27,7 +27,7 @@ class SNNlifadex(torch.nn.Module):
             p=neuron_parameters,
             input_weights=input_weights,
         )
-        
+
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
     def forward(
