@@ -21,25 +21,21 @@ class SNNlifadex(torch.nn.Module):
         input_weights: Optional[torch.Tensor] = None,
     ) -> None:
         super(SNNlifadex, self).__init__()
-        if neuron_parameters is not None:
-            self.alif = snn.LIFAdExRecurrent(
-                feature_size,
-                hidden_size,
-                p=neuron_parameters,
-                input_weights=input_weights,
-            )
-        else:
-            self.alif = snn.LIFAdExRecurrent(
-                feature_size, hidden_size, input_weights=input_weights
-            )
+        self.alif = snn.LIFAdExRecurrent(
+            feature_size,
+            hidden_size,
+            p=neuron_parameters,
+            input_weights=input_weights,
+        )
+
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
 
     def forward(
         self, x: torch.tensor, state: Optional[LIFAdExState] = None
     ) -> Tuple[torch.tensor, LIFAdExState]:
-        out, state = self.alif(x, state=state)
+        out, out_state = self.alif(x, state=state)
         out = self.exp_f(out)
-        return (out, state)
+        return (out, out_state)
 
     @staticmethod
     def type_parameters():
