@@ -3,6 +3,7 @@ from norse.torch.functional.lif import LIFState
 from norse.torch.functional.lif_adex import LIFAdExState
 from norse.torch.functional.lif_refrac import LIFRefracState
 from norse.torch.functional.lsnn import LSNNState
+from norse.torch.functional.lif_adex_refrac import LIFAdExRefracState
 
 
 class InitialStates:
@@ -91,5 +92,23 @@ class LIFAdExInitState(InitialStates):
             torch.rand(self._batch_size, self._hidden_size),
             torch.zeros(self._batch_size, self._hidden_size),
             torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size),
+        )
+
+
+class LIFAdExRefracInitState(InitialStates):
+    def __init__(self, batch_size, hidden_size) -> None:
+        super().__init__(batch_size, hidden_size)
+        self.lifadex_init_state = LIFAdExInitState(self._batch_size, self._hidden_size)
+
+    def zero_state(self):
+        return LIFAdExRefracState(
+            self.lifadex_init_state.zero_state(),
+            torch.zeros(self._batch_size, self._hidden_size),
+        )
+
+    def random_state(self):
+        return LIFAdExRefracState(
+            self.lifadex_init_state.random_state(),
             torch.zeros(self._batch_size, self._hidden_size),
         )
