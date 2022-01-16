@@ -15,6 +15,7 @@ class SNNlifadexrefrac(torch.nn.Module):
         neuron_parameters: Optional[LIFAdExRefracParameters] = None,
         tau_filter_inv: float = 223.1435511314,
         input_weights: Optional[torch.Tensor] = None,
+        save_states: bool = False,
     ) -> None:
         super(SNNlifadexrefrac, self).__init__()
         self.adexrefrac = snn.LIFAdExRefracRecurrent(
@@ -24,13 +25,26 @@ class SNNlifadexrefrac(torch.nn.Module):
             input_weights=input_weights,
         )
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
+        self.save_states = save_states
 
     def forward(
         self, x: torch.tensor, state: Optional[LIFAdExRefracState] = None
     ) -> Tuple[torch.tensor, LIFAdExRefracState]:
-        out, out_state = self.adexrefrac(x, state=state)
-        out = self.exp_f(out)
-        return (out, out_state)
+        if self.save_states:
+            T = len(x)
+            s = state
+            states = []
+            outputs = []
+            for ts in range(T):
+                out, s = self.adexrefrac(x[ts, :, :], state=s)
+                outputs.append(out)
+                states.append(s)
+            outputs = torch.stack(outputs)
+        else:
+            outputs, states = self.adexrefrac(x, state)
+
+        outputs = self.exp_f(outputs)
+        return (outputs, states)
 
     @staticmethod
     def type_parameters():

@@ -23,7 +23,7 @@ class SNNStates(SNNOneState):
         outputs = []
         states = []
         for ts in range(0, T - 2):
-            out, state = self.model(x[ts], state)
+            out, state = self.model(x[ts:ts+1], state)
 
             outputs.append(torch.clone(out[0, ...]))
             states.append(state)
