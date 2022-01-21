@@ -6,7 +6,7 @@ from ..net.lif import SNNLif
 
 def test_init_disables():
     net = SNNLif(3, 10, 3)
-    disables = DisableSomeNeurons(net)
+    DisableSomeNeurons(net)
 
 
 def test_output_disables():
