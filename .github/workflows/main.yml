@@ -22,7 +22,7 @@ jobs:
           python -m pip install torch
           python -m pip install -r requirements.txt
           # git clone https://github.com/norse/norse.git && cd norse && python setup.py install && cd ..
-          git clone https://github.com/Pugavkomm/norse/tree/feature-lif_adex_recurrent_refrac && cd norse && python setup.py install && cd ..
+          git clone https://github.com/Pugavkomm/norse/tree/feature-lif_adex_recurrent_refrac/ && cd norse && python setup.py install && cd ..
           python -m pip install pytest
       - name: Pytest
         run: pytest
