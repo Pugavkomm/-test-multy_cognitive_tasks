@@ -16,7 +16,7 @@ class SNNLif(torch.nn.Module):
         feature_size,
         hidden_size,
         output_size,
-        neuron_parameters: Optional[LIFParameters] = None,
+        neuron_parameters: LIFParameters = LIFParameters(),
         tau_filter_inv: float = default_tau_filter_inv,
     ) -> None:
         super(SNNLif, self).__init__()
