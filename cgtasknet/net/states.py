@@ -7,9 +7,12 @@ from norse.torch.functional.lif_adex_refrac import LIFAdExRefracState
 
 
 class InitialStates:
-    def __init__(self, batch_size: int, hidden_size: int) -> None:
+    def __init__(
+        self, batch_size: int, hidden_size: int, device=torch.device("cpu")
+    ) -> None:
         self._batch_size = batch_size
         self._hidden_size = hidden_size
+        self._device = device
 
     @property
     def batch_size(self):
@@ -31,16 +34,16 @@ class InitialStates:
 class LIFInitState(InitialStates):
     def zero_state(self):
         return LIFState(
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
     def random_state(self):
         return LIFState(
-            torch.rand(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.rand(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
 
@@ -49,66 +52,70 @@ class LIFRefracInitState(InitialStates):
         lif_init_state = LIFInitState(self._batch_size, self._hidden_size)
         return LIFRefracState(
             lif_init_state.zero_state(),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
     def random_state(self):
         lif_init_state = LIFInitState(self._batch_size, self._hidden_size)
         return LIFRefracState(
             lif_init_state.random_state(),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
 
 class LSNNInitState(InitialStates):
     def zero_state(self):
         return LSNNState(
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
     def random_state(self):
         return LSNNState(
-            torch.rand(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.rand(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
 
 class LIFAdExInitState(InitialStates):
     def zero_state(self):
         return LIFAdExState(
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
     def random_state(self):
         return LIFAdExState(
-            torch.rand(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.rand(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
 
 class LIFAdExRefracInitState(InitialStates):
-    def __init__(self, batch_size, hidden_size) -> None:
-        super().__init__(batch_size, hidden_size)
-        self.lifadex_init_state = LIFAdExInitState(self._batch_size, self._hidden_size)
-
     def zero_state(self):
+        self.lifadex_init_state = LIFAdExInitState(
+            self._batch_size, self._hidden_size, device=self._device
+        )
+
         return LIFAdExRefracState(
             self.lifadex_init_state.zero_state(),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )
 
     def random_state(self):
+        self.lifadex_init_state = LIFAdExInitState(
+            self._batch_size, self._hidden_size, device=self._device
+        )
+
         return LIFAdExRefracState(
             self.lifadex_init_state.random_state(),
-            torch.zeros(self._batch_size, self._hidden_size),
+            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
         )

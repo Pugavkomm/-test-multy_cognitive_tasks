@@ -96,27 +96,33 @@ class ReduceTaskCognitive:
 
     def dataset(self, n_trials: int = 1, delay_between=0):
         multy_inputs, multy_outputs = self.one_dataset()
+        zeros_array_input = np.zeros(
+                        (delay_between, multy_inputs.shape[1], multy_inputs.shape[2])
+                    )
+        zeros_array_output = np.zeros(
+                        (delay_between, multy_outputs.shape[1], multy_outputs.shape[2])
+                    )
+        multy_inputs = np.concatenate((zeros_array_input, multy_inputs), axis=0)
+        multy_outputs = np.concatenate((zeros_array_output, multy_outputs), axis=0)
         for _ in range(n_trials - 1):
             inputs, outputs = self.one_dataset()
-            multy_inputs = np.concatenate((multy_inputs, inputs), axis=0)
             multy_inputs = np.concatenate(
                 (
                     multy_inputs,
-                    np.zeros(
-                        (delay_between, multy_inputs.shape[1], multy_inputs.shape[2])
-                    ),
-                )
+                    zeros_array_input,
+                ),
+                axis=0
             )
-            multy_outputs = np.concatenate((multy_outputs, outputs), axis=0)
+            multy_inputs = np.concatenate((multy_inputs, inputs), axis=0)
             multy_outputs = np.concatenate(
                 (
                     multy_outputs,
-                    np.zeros(
-                        (delay_between, multy_outputs.shape[1], multy_outputs.shape[2])
-                    ),
+                    zeros_array_output,
                 ),
                 axis=0,
             )
+            multy_outputs = np.concatenate((multy_outputs, outputs), axis=0)
+
         return multy_inputs, multy_outputs
 
     @property
