@@ -66,7 +66,7 @@ class DefaultParams:
             return dict(
                 [
                     ("dt", 1e-3),
-                    #("delay", 0.3),
+                    # ("delay", 0.3),
                     ("trial_time", 0.75),
                     ("answer_time", 0.3),
                     ("n_mods", 2),

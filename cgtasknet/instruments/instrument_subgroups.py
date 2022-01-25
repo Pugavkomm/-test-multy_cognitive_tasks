@@ -3,9 +3,9 @@ from .correct_answer import _is_correct_output
 import torch
 
 
-
 def sort_elemnts_by_another(base: any, for_sort: any):
     return torch.as_tensor([x for _, x in sorted(zip(base, for_sort))])
+
 
 class SubgroupFinder:
     def __init__(self, dt: float = 1e-3) -> None:

@@ -23,4 +23,3 @@ def _is_correct_output_batches(
     for i in range(real_mean.shape[0]):
         result[i] = torch.argmax(target_mean[i]) == torch.argmax(real_mean[i])
     return result
-
