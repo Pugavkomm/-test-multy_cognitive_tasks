@@ -37,8 +37,9 @@ class DefaultParams:
             return dict(
                 [
                     ("dt", 1e-3),
-                    ("delay", 0.3),
+                    # ("delay", 0.3),
                     ("trial_time", 0.75),
+                    ("answer_time", 0.3),
                     ("value", None),
                 ]
             )
@@ -48,18 +49,38 @@ class DefaultParams:
                     ("dt", 1e-3),
                     ("delay", 0.3),
                     ("trial_time", 0.25),
+                    ("answer_time", 0.15),
                     ("values", (None, None)),
                 ]
             )
         elif self._task == "CtxDMTask":
-            return dict([("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.75)])
+            return dict(
+                [
+                    ("dt", 1e-3),
+                    # ("delay", 0.3),
+                    ("trial_time", 0.75),
+                    ("answer_time", 0.3),
+                ]
+            )
         elif self._task == "DMTaskRandomMod":
             return dict(
-                [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.75), ("n_mods", 2)]
+                [
+                    ("dt", 1e-3),
+                    #("delay", 0.3),
+                    ("trial_time", 0.75),
+                    ("answer_time", 0.3),
+                    ("n_mods", 2),
+                ]
             )
         elif self._task == "RomoTaskRandomMod":
             return dict(
-                [("dt", 1e-3), ("delay", 0.3), ("trial_time", 0.25), ("n_mods", 2)]
+                [
+                    ("dt", 1e-3),
+                    ("delay", 0.3),
+                    ("trial_time", 0.25),
+                    ("answer_time", 0.15),
+                    ("n_mods", 2),
+                ]
             )
         else:
             raise ValueError(f"Task: {self._task} is not supported")
@@ -70,7 +91,13 @@ class ReduceTaskCognitive:
     Class method for ReduceTask .
     """
 
-    def __init__(self, params: dict, batch_size: int, mode: str) -> None:
+    def __init__(
+        self,
+        params: dict,
+        batch_size: int,
+        mode: str,
+        enable_fixation_delay: bool = False,
+    ) -> None:
         """
         Initialize the instance .
 
@@ -84,6 +111,7 @@ class ReduceTaskCognitive:
         self._ob_size = 0
         self._act_size = 0
         self._mode = mode
+        self._enable_fixation_delay = enable_fixation_delay
 
     def one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -97,11 +125,14 @@ class ReduceTaskCognitive:
     def dataset(self, n_trials: int = 1, delay_between=0):
         multy_inputs, multy_outputs = self.one_dataset()
         zeros_array_input = np.zeros(
-                        (delay_between, multy_inputs.shape[1], multy_inputs.shape[2])
-                    )
+            (delay_between, multy_inputs.shape[1], multy_inputs.shape[2])
+        )
         zeros_array_output = np.zeros(
-                        (delay_between, multy_outputs.shape[1], multy_outputs.shape[2])
-                    )
+            (delay_between, multy_outputs.shape[1], multy_outputs.shape[2])
+        )
+        if self._enable_fixation_delay:
+            zeros_array_input[:, :, 0] = 1.0
+            zeros_array_output[:, :, 0] = 1.0
         multy_inputs = np.concatenate((zeros_array_input, multy_inputs), axis=0)
         multy_outputs = np.concatenate((zeros_array_output, multy_outputs), axis=0)
         for _ in range(n_trials - 1):
@@ -111,7 +142,7 @@ class ReduceTaskCognitive:
                     multy_inputs,
                     zeros_array_input,
                 ),
-                axis=0
+                axis=0,
             )
             multy_inputs = np.concatenate((multy_inputs, inputs), axis=0)
             multy_outputs = np.concatenate(
@@ -200,7 +231,11 @@ class DMTask(ReduceTaskCognitive):
     threshold = 0.5
 
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
         """
         Initialize the model .
@@ -216,7 +251,9 @@ class DMTask(ReduceTaskCognitive):
         if mode == "value" and params["value"] is None:
             raise ValueError("params[value] is None")
 
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
         self._ob_size = 2
         self._act_size = 3
 
@@ -229,7 +266,7 @@ class DMTask(ReduceTaskCognitive):
         """
         dt = self._params["dt"]
         trial_time = int(self._params["trial_time"] / dt)
-        delay = int(self._params["delay"] / dt)
+        delay = int(self._params["answer_time"] / dt)
         if self._mode == "random":
             values = np.random.uniform(0, 1, size=(self._batch_size))
         elif self._mode == "value":
@@ -261,7 +298,11 @@ class DMTaskRandomMod(DMTask):
     """
 
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
         """
         Initialize the model .
@@ -274,7 +315,9 @@ class DMTaskRandomMod(DMTask):
         """
         if params is None:
             params = DefaultParams("DMTaskRandomMod").generate_params()
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
         self._n_mods = params["n_mods"]
         self._ob_size += self._n_mods - 1
 
@@ -300,9 +343,15 @@ class DMTaskRandomMod(DMTask):
 
 class DMTask1(DMTaskRandomMod):
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
 
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
@@ -310,9 +359,15 @@ class DMTask1(DMTaskRandomMod):
 
 class DMTask2(DMTaskRandomMod):
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
 
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
@@ -333,7 +388,11 @@ class RomoTask(ReduceTaskCognitive):
     """
 
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
         """
         Initialize the model .
@@ -349,7 +408,7 @@ class RomoTask(ReduceTaskCognitive):
             params["values"][0] is None or params["values"][1] is None
         ):
             raise ValueError("params[values][0]([1]) is None")
-        super().__init__(params, batch_size, mode)
+        super().__init__(params, batch_size, mode, enable_fixation_delay)
         self._ob_size = 2
         self._act_size = 3
 
@@ -363,18 +422,21 @@ class RomoTask(ReduceTaskCognitive):
         dt = self.params["dt"]
         trial_time = int(self._params["trial_time"] / dt)
         delay = int(self._params["delay"] / dt)
+        answer_time = int(self._params["answer_time"] / dt)
         if self._mode == "random":
             values_first = np.random.uniform(0, 1, size=(self._batch_size))
             values_second = np.random.uniform(0, 1, size=(self._batch_size))
         elif self._mode == "value":
             values_first = np.ones((self._batch_size)) * self._params["values"][0]
             values_second = np.ones((self._batch_size)) * self._params["values"][1]
-        inputs = np.zeros((2 * (trial_time + delay), self._batch_size, self._ob_size))
+        inputs = np.zeros(
+            ((2 * trial_time + delay + answer_time), self._batch_size, self._ob_size)
+        )
         inputs[: 2 * trial_time + delay, :, 0] = 1
         inputs[:trial_time, :, 1] = values_first
-        inputs[trial_time + delay : -delay, :, 1] = values_second
+        inputs[trial_time + delay : -answer_time, :, 1] = values_second
         target_output = np.zeros(
-            (2 * (trial_time + delay), self._batch_size, self._act_size)
+            ((2 * trial_time + delay + answer_time), self._batch_size, self._act_size)
         )
         target_output[:, :, 0] = inputs[:, :, 0]
         target_output[2 * trial_time + delay :, :, 1] = values_first < values_second
@@ -400,7 +462,11 @@ class RomoTaskRandomMod(RomoTask):
     """
 
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
         """
         Initialize the model .
@@ -413,7 +479,9 @@ class RomoTaskRandomMod(RomoTask):
         """
         if params is None:
             params = DefaultParams("RomoTaskRandomMod").generate_params()
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
         self._n_mods = params["n_mods"]
         self._ob_size += self._n_mods - 1
 
@@ -439,10 +507,16 @@ class RomoTaskRandomMod(RomoTask):
 
 class RomoTask1(RomoTaskRandomMod):
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
 
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
 
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
@@ -450,10 +524,16 @@ class RomoTask1(RomoTaskRandomMod):
 
 class RomoTask2(RomoTaskRandomMod):
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ) -> None:
 
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
 
     def one_dataset(self, mode=1):
         return self._one_dataset_mod(mode)
@@ -468,7 +548,11 @@ class CtxDMTask(ReduceTaskCognitive):
     """
 
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ):
         """
         Initialize the DMTask .
@@ -482,7 +566,9 @@ class CtxDMTask(ReduceTaskCognitive):
             params = DefaultParams("CtxDMTask").generate_params()
         super().__init__(params, batch_size, mode)
 
-        self.DMTask = DMTask(params, batch_size, mode)
+        self.DMTask = DMTask(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
         self._ob_size = 3
         self._act_size = 3
 
@@ -557,7 +643,11 @@ class CtxDM1(CtxDMTask):
     """
 
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ):
         """
         Initialize the model .
@@ -567,7 +657,9 @@ class CtxDM1(CtxDMTask):
             batch_size (int): [description]
             mode (str, optional): [description]. Defaults to "random".
         """
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
 
     def one_dataset(self):
         """
@@ -588,7 +680,11 @@ class CtxDM2(CtxDMTask):
     """
 
     def __init__(
-        self, params: Optional[dict] = None, batch_size: int = 1, mode: str = "random"
+        self,
+        params: Optional[dict] = None,
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
     ):
         """
         Initialize the model .
@@ -598,7 +694,9 @@ class CtxDM2(CtxDMTask):
             batch_size (int): [description]
             mode (str, optional): [description]. Defaults to "random".
         """
-        super().__init__(params, batch_size, mode)
+        super().__init__(
+            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+        )
 
     def one_dataset(self):
         """Return a single dataset."""
@@ -638,6 +736,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         mode: str = "random",
         delay_between_trial: int = 0,  # iterations
         number_of_inputs: int = 2,
+        enable_fixation_delay: bool = False,
     ):
         """
         Initialize the object with the initial state of the model .
@@ -649,15 +748,21 @@ class MultyReduceTasks(ReduceTaskCognitive):
         """
         self._delay_between_trial = delay_between_trial
         self._initial_tasks_list = dict()
+        self._enable_fixation_delay = enable_fixation_delay
         if type(tasks) == list:
             for task_name in tasks:
                 self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
-                    batch_size=batch_size, mode=mode
+                    batch_size=batch_size,
+                    mode=mode,
+                    enable_fixation_delay=enable_fixation_delay,
                 )
         if type(tasks) == dict:
             for task_name in tasks:
                 self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
-                    params=tasks[task_name], batch_size=batch_size, mode=mode
+                    params=tasks[task_name],
+                    batch_size=batch_size,
+                    mode=mode,
+                    enable_fixation_delay=enable_fixation_delay,
                 )
         self._tasks = tasks
         self._ob_size = 1 + number_of_inputs + len(tasks)

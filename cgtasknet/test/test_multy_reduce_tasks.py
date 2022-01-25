@@ -60,7 +60,7 @@ def test_shape_for_one_input_of_mods():
     dmparams = DefaultParams("DMTask").generate_params()
     dmparams["n_mods"] = 1
     task_list = ["DMTask1", "RomoTask1"]
-    tasks_params = dict([(task_list[0], romoparams), (task_list[1], dmparams)])
+    tasks_params = dict([(task_list[1], romoparams), (task_list[0], dmparams)])
     task = MultyReduceTasks(tasks=tasks_params, batch_size=20, number_of_inputs=1)
     inputs, outputs = task.dataset(10)
     assert inputs.shape[1] == 20
