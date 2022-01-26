@@ -1,4 +1,4 @@
-from ..instruments.instrument_subgroups import SubgroupFinder
+from cgtasknet.instruments.instrument_subgroups import SubgroupFinder
 import torch
 
 

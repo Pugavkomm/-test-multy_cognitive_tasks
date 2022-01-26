@@ -1,7 +1,7 @@
 import torch
 
-from ..instruments.instrument_disable_neurons import DisableSomeNeurons
-from ..net.lif import SNNLif
+from cgtasknet.instruments.instrument_disable_neurons import DisableSomeNeurons
+from cgtasknet.net.lif import SNNLif
 
 
 def test_init_disables():

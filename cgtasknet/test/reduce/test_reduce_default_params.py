@@ -1,4 +1,4 @@
-from ..tasks.reduce import DefaultParams
+from cgtasknet.tasks.reduce import DefaultParams
 
 
 def test_default_params_dm_task():
