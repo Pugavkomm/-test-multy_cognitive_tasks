@@ -21,7 +21,7 @@ def test_run_lif():
     model = SNNLif(input_s, hidden_s, output_s)
     outputs, state = model(data)
     assert outputs.shape == (1000, batch_size, output_s)
-    assert type(state) == LIFState
+    assert isinstance(state, LIFState)
 
 
 def test_run_save_state_lif():
@@ -33,4 +33,4 @@ def test_run_save_state_lif():
     assert outputs.shape == (10, batch_size, output_s)
     assert len(state) == 10
     for i in range(10):
-        assert type(state[i]) == LIFState
+        assert isinstance(state[i], LIFState)

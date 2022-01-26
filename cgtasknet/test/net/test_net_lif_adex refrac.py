@@ -24,7 +24,7 @@ def test_run_lif_refrac():
     model = SNNlifadexrefrac(input_s, hidden_s, output_s)
     outputs, state = model(data)
     assert outputs.shape == (1000, batch_size, output_s)
-    assert type(state) == LIFAdExRefracState
+    assert isinstance(state, LIFAdExRefracState)
 
 
 def test_run_save_state_lif_refrac():
@@ -36,4 +36,4 @@ def test_run_save_state_lif_refrac():
     assert outputs.shape == (10, batch_size, output_s)
     assert len(state) == 10
     for i in range(10):
-        assert type(state[i]) == LIFAdExRefracState
+        assert isinstance(state[i], LIFAdExRefracState)
