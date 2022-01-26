@@ -14,7 +14,7 @@ class SNNLifRefrac(torch.nn.Module):
         feature_size,
         hidden_size,
         output_size,
-        neuron_parameters: Optional[LIFRefracParameters] = None,
+        neuron_parameters: Optional[LIFRefracParameters] = LIFRefracParameters(),
         tau_filter_inv: float = 223.1435511314,
         save_states: bool = False,
     ) -> None:

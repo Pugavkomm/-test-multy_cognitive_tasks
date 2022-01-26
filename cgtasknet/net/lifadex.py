@@ -16,9 +16,10 @@ class SNNlifadex(torch.nn.Module):
         feature_size,
         hidden_size,
         output_size,
-        neuron_parameters: Optional[LIFAdExParameters] = None,
+        neuron_parameters: Optional[LIFAdExParameters] = LIFAdExParameters(),
         tau_filter_inv: float = default_tau_filter_inv,
         input_weights: Optional[torch.Tensor] = None,
+        save_states: bool = False,
     ) -> None:
         super(SNNlifadex, self).__init__()
         self.alif = snn.LIFAdExRecurrent(
@@ -29,13 +30,25 @@ class SNNlifadex(torch.nn.Module):
         )
 
         self.exp_f = ExpFilter(hidden_size, output_size, tau_filter_inv)
+        self.save_states = save_states
 
     def forward(
         self, x: torch.tensor, state: Optional[LIFAdExState] = None
     ) -> Tuple[torch.tensor, LIFAdExState]:
-        out, out_state = self.alif(x, state=state)
-        out = self.exp_f(out)
-        return (out, out_state)
+        if self.save_states:
+            T = len(x)
+            s = state
+            states = []
+            outputs = []
+            for ts in range(T):
+                out, s = self.alif(x[ts, :, :], state=s)
+                outputs.append(out)
+                states.append(s)
+            outputs = torch.stack(outputs)
+        else:
+            outputs, states = self.alif(x, state)
+        outputs = self.exp_f(outputs)
+        return (outputs, states)
 
     @staticmethod
     def type_parameters():

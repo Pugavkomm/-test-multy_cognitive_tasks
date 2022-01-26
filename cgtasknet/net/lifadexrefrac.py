@@ -12,7 +12,9 @@ class SNNlifadexrefrac(torch.nn.Module):
         feature_size,
         hidden_size,
         output_size,
-        neuron_parameters: Optional[LIFAdExRefracParameters] = None,
+        neuron_parameters: Optional[
+            LIFAdExRefracParameters
+        ] = LIFAdExRefracParameters(),
         tau_filter_inv: float = 223.1435511314,
         input_weights: Optional[torch.Tensor] = None,
         save_states: bool = False,
