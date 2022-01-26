@@ -1,4 +1,4 @@
-from ..tasks.reduce import DefaultParams, MultyReduceTasks
+from cgtasknet.tasks.reduce import DefaultParams, MultyReduceTasks
 
 
 def test_init_multy_task():

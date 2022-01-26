@@ -1,4 +1,4 @@
-from ..tasks.reduce import DefaultParams, DMTask, DMTaskRandomMod
+from cgtasknet.tasks.reduce import DefaultParams, DMTask, DMTaskRandomMod
 
 
 def test_dm_task_size():
