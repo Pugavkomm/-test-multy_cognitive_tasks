@@ -5,6 +5,8 @@ import torch
 from norse.torch.functional.lif_refrac import LIFRefracParameters, LIFRefracState
 from norse.torch.module.exp_filter import ExpFilter
 
+from cgtasknet.net.save_states import save_states
+
 
 class SNNLifRefrac(torch.nn.Module):
     r"""This net includes one adaptive integrate-and-fire layer."""
@@ -30,18 +32,7 @@ class SNNLifRefrac(torch.nn.Module):
     def forward(
         self, x: torch.tensor, state: Optional[LIFRefracState] = None
     ) -> Tuple[torch.tensor, LIFRefracState]:
-        if self.save_states:
-            T = len(x)
-            s = state
-            states = []
-            outputs = []
-            for ts in range(T):
-                out, s = self.lif_refrac(x[ts, :, :], state=s)
-                outputs.append(out)
-                states.append(s)
-            outputs = torch.stack(outputs)
-        else:
-            outputs, states = self.lif_refrac(x, state)
+        outputs, states = save_states(x, self.save_states, self.lif_refrac, state)
         outputs = self.exp_f(outputs)
         return (outputs, states)
 

@@ -5,6 +5,8 @@ import torch
 from norse.torch.functional.lsnn import LSNNParameters, LSNNState
 from norse.torch.module.exp_filter import ExpFilter
 
+from cgtasknet.net.save_states import save_states
+
 default_tau_filter_inv = 223.1435511314
 
 
@@ -28,18 +30,7 @@ class SNNAlif(torch.nn.Module):
     def forward(
         self, x: torch.tensor, state: Optional[LSNNState] = None
     ) -> Tuple[torch.tensor, LSNNState]:
-        if self.save_states:
-            T = len(x)
-            s = state
-            states = []
-            outputs = []
-            for ts in range(T):
-                out, s = self.alif(x[ts, :, :], state=s)
-                outputs.append(out)
-                states.append(s)
-            outputs = torch.stack(outputs)
-        else:
-            outputs, states = self.alif(x, state)
+        outputs, states = save_states(x, self.save_states, self.alif, state)
         outputs = self.exp_f(outputs)
         return (outputs, states)
 
