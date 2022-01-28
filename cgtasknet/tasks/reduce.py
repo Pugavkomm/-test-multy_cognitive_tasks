@@ -123,7 +123,6 @@ class ReduceTaskCognitive(ABC):
         Returns:
             Tuple[np.ndarray, np.ndarray]: [description]
         """
-        pass
 
     def dataset(self, n_trials: int = 1, delay_between=0):
         multy_inputs, multy_outputs = self.one_dataset()
