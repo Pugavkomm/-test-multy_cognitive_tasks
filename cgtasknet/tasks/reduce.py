@@ -39,7 +39,7 @@ class DefaultParams:
                     ("dt", 1e-3),
                     # ("delay", 0.3),
                     ("trial_time", 0.75),
-                    ("answer_time", 0.3),
+                    ("answer_time", 0.15),
                     ("value", None),
                 ]
             )
@@ -59,7 +59,7 @@ class DefaultParams:
                     ("dt", 1e-3),
                     # ("delay", 0.3),
                     ("trial_time", 0.75),
-                    ("answer_time", 0.3),
+                    ("answer_time", 0.15),
                 ]
             )
         elif self._task == "DMTaskRandomMod":
@@ -68,7 +68,7 @@ class DefaultParams:
                     ("dt", 1e-3),
                     # ("delay", 0.3),
                     ("trial_time", 0.75),
-                    ("answer_time", 0.3),
+                    ("answer_time", 0.15),
                     ("n_mods", 2),
                 ]
             )
@@ -155,6 +155,11 @@ class ReduceTaskCognitive:
             multy_outputs = np.concatenate((multy_outputs, outputs), axis=0)
 
         return multy_inputs, multy_outputs
+
+    def set_param(self, name: str, value: int):
+        if name not in self._params:
+            raise IndexError(f"{name} is not the parameter")
+        self._params[name] = value
 
     @property
     def feature_and_act_size(self) -> Tuple[int, int]:
@@ -288,6 +293,10 @@ class DMTask(ReduceTaskCognitive):
     def one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
         return self._one_dataset()
 
+    @property
+    def name(self):
+        return "DMTask"
+
 
 class DMTaskRandomMod(DMTask):
     """
@@ -340,6 +349,10 @@ class DMTaskRandomMod(DMTask):
             mode = np.random.randint(0, self._n_mods)
         return self._one_dataset_mod(mode)
 
+    @property
+    def name(self):
+        return "DMTaskRandomMod"
+
 
 class DMTask1(DMTaskRandomMod):
     def __init__(
@@ -356,6 +369,10 @@ class DMTask1(DMTaskRandomMod):
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
 
+    @property
+    def name(self):
+        return "DMTask1"
+
 
 class DMTask2(DMTaskRandomMod):
     def __init__(
@@ -371,6 +388,10 @@ class DMTask2(DMTaskRandomMod):
 
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
+
+    @property
+    def name(self):
+        return "DMTask2"
 
 
 class RomoTask(ReduceTaskCognitive):
@@ -424,11 +445,11 @@ class RomoTask(ReduceTaskCognitive):
         delay = int(self._params["delay"] / dt)
         answer_time = int(self._params["answer_time"] / dt)
         if self._mode == "random":
-            values_first = np.random.uniform(0, 1, size=(self._batch_size))
-            values_second = np.random.uniform(0, 1, size=(self._batch_size))
+            values_first = np.random.uniform(0, 1, size=self._batch_size)
+            values_second = np.random.uniform(0, 1, size=self._batch_size)
         elif self._mode == "value":
-            values_first = np.ones((self._batch_size)) * self._params["values"][0]
-            values_second = np.ones((self._batch_size)) * self._params["values"][1]
+            values_first = np.ones(self._batch_size) * self._params["values"][0]
+            values_second = np.ones(self._batch_size) * self._params["values"][1]
         inputs = np.zeros(
             ((2 * trial_time + delay + answer_time), self._batch_size, self._ob_size)
         )
@@ -451,6 +472,10 @@ class RomoTask(ReduceTaskCognitive):
             [type]: [description]
         """
         return self._one_dataset()
+
+    @property
+    def name(self):
+        return "RomoTask"
 
 
 class RomoTaskRandomMod(RomoTask):
@@ -482,6 +507,7 @@ class RomoTaskRandomMod(RomoTask):
         super().__init__(
             params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
         )
+
         self._n_mods = params["n_mods"]
         self._ob_size += self._n_mods - 1
 
@@ -504,6 +530,10 @@ class RomoTaskRandomMod(RomoTask):
             mode = np.random.randint(0, self._n_mods)
         return self._one_dataset_mod(mode)
 
+    @property
+    def name(self):
+        return "RomoTaskRandomMod"
+
 
 class RomoTask1(RomoTaskRandomMod):
     def __init__(
@@ -513,13 +543,16 @@ class RomoTask1(RomoTaskRandomMod):
         mode: str = "random",
         enable_fixation_delay: bool = False,
     ) -> None:
-
         super().__init__(
             params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
         )
 
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
+
+    @property
+    def name(self):
+        return "RomoTask1"
 
 
 class RomoTask2(RomoTaskRandomMod):
@@ -530,13 +563,16 @@ class RomoTask2(RomoTaskRandomMod):
         mode: str = "random",
         enable_fixation_delay: bool = False,
     ) -> None:
-
         super().__init__(
             params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
         )
 
     def one_dataset(self, mode=1):
         return self._one_dataset_mod(mode)
+
+    @property
+    def name(self):
+        return "RomoTask2"
 
 
 class CtxDMTask(ReduceTaskCognitive):
@@ -633,6 +669,10 @@ class CtxDMTask(ReduceTaskCognitive):
         self._params = new_params
         self.DMTask = DMTask(new_params, self._batch_size, self._mode)
 
+    @property
+    def name(self):
+        return "CtxDMTask"
+
 
 class CtxDM1(CtxDMTask):
     """
@@ -670,6 +710,10 @@ class CtxDM1(CtxDMTask):
         """
         return self._one_dataset(0)
 
+    @property
+    def name(self):
+        return "CtxDM1"
+
 
 class CtxDM2(CtxDMTask):
     """
@@ -701,6 +745,10 @@ class CtxDM2(CtxDMTask):
     def one_dataset(self):
         """Return a single dataset."""
         return self._one_dataset(1)
+
+    @property
+    def name(self):
+        return "CtxDM2"
 
 
 class MultyReduceTasks(ReduceTaskCognitive):
@@ -734,7 +782,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         tasks: Union[dict[str, dict[str, float]], list[str]],
         batch_size: int = 1,
         mode: str = "random",
-        delay_between_trial: int = 0,  # iterations
+        delay_between: int = 0,  # iterations
         number_of_inputs: int = 2,
         enable_fixation_delay: bool = False,
     ):
@@ -746,7 +794,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
             batch_size (int, optional): [description]. Defaults to 1.
             mode (str, optional): [description]. Defaults to "random".
         """
-        self._delay_between_trial = delay_between_trial
+        self._delay_between = delay_between
         self._initial_tasks_list = dict()
         self._enable_fixation_delay = enable_fixation_delay
         if type(tasks) == list:
@@ -784,25 +832,31 @@ class MultyReduceTasks(ReduceTaskCognitive):
         inputs_plus_rule = np.zeros((inputs.shape[0], self._batch_size, self._ob_size))
         inputs_plus_rule[:, :, -len(self._task_list) + current_task] = 1
         inputs_plus_rule[:, :, : -len(self._task_list)] = inputs
-        if self._delay_between_trial > 0:
-            delay_inputs_after = np.zeros(
+        if self._delay_between > 0:
+            delay_inputs = np.zeros(
                 (
-                    self._delay_between_trial,
+                    self._delay_between,
                     inputs_plus_rule.shape[1],
                     inputs_plus_rule.shape[2],
                 )
             )
-            delay_outputs_after = np.zeros(
-                (self._delay_between_trial, outputs.shape[1], outputs.shape[2])
+            delay_outputs = np.zeros(
+                (self._delay_between, outputs.shape[1], outputs.shape[2])
             )
-            inputs_plus_rule = np.concatenate(
-                (inputs_plus_rule, delay_inputs_after), axis=0
-            )
-            outputs = np.concatenate((outputs, delay_outputs_after))
+            inputs_plus_rule = np.concatenate((delay_inputs, inputs_plus_rule), axis=0)
+            outputs = np.concatenate((delay_outputs, outputs))
         return inputs_plus_rule, outputs
 
     def one_dataset(self):
         return self._one_dataset()
+
+    def __getitem__(self, key: int):
+        if key > len(self._tasks) or key < 0:
+            raise IndexError(f"{key} is not include")
+        return self._task_list[key]
+
+    def __len__(self):
+        return len(self._task_list)
 
     def _create_task_list(self):
         self._task_list = [
