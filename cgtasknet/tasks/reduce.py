@@ -16,6 +16,10 @@ class ReduceTaskParameters(NamedTuple):
     dt: float = 1e-3
     trial_time: float = 0
     answer_time: float = 0.15
+    negative_shift_trial_time: float = 0
+    positive_shift_trial_time: float = 0
+    negative_shift_delay_time: float = 0
+    positive_shift_delay_time: float = 0
     value: float = None
     delay: float = None
 
@@ -25,6 +29,8 @@ class DMTaskParameters(NamedTuple):
     trial_time: float = 0.75
     answer_time: float = ReduceTaskParameters().answer_time
     value: float = ReduceTaskParameters().value
+    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
+    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
 
 
 class RomoTaskParameters(NamedTuple):
@@ -33,6 +39,10 @@ class RomoTaskParameters(NamedTuple):
     answer_time: float = ReduceTaskParameters().answer_time
     value: Tuple[float, float] = (None, None)
     delay: float = 0.15
+    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
+    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
+    negative_shift_delay_time: float = ReduceTaskParameters().negative_shift_delay_time
+    positive_shift_delay_time: float = ReduceTaskParameters().positive_shift_delay_time
 
 
 class CtxDMTaskParameters(NamedTuple):
@@ -40,6 +50,8 @@ class CtxDMTaskParameters(NamedTuple):
     trial_time: float = DMTaskParameters().trial_time
     answer_time: float = DMTaskParameters().answer_time
     value: Tuple[float, float] = (None, None)
+    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
+    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
 
 
 class CtxDMTaskRandomModeParameters(NamedTuple):
@@ -48,6 +60,8 @@ class CtxDMTaskRandomModeParameters(NamedTuple):
     answer_time: float = DMTaskParameters().answer_time
     value: Tuple[float, float] = (None, None)
     n_mods: int = 2
+    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
+    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
 
 
 class DMTaskRandomModParameters(NamedTuple):
@@ -56,15 +70,21 @@ class DMTaskRandomModParameters(NamedTuple):
     answer_time: float = DMTaskParameters().answer_time
     value: float = DMTaskParameters().value
     n_mods: int = 2
+    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
+    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
 
 
 class RomoTaskRandomModParameters(NamedTuple):
     dt: float = RomoTaskParameters().dt
-    trial_time:float = RomoTaskParameters().trial_time
+    trial_time: float = RomoTaskParameters().trial_time
     answer_time: float = RomoTaskParameters().answer_time
     value: Tuple[float, float] = RomoTaskParameters().value
     delay: float = RomoTaskParameters().delay
     n_mods: int = 2
+    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
+    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
+    negative_shift_delay_time: float = ReduceTaskParameters().negative_shift_delay_time
+    positive_shift_delay_time: float = ReduceTaskParameters().positive_shift_delay_time
 
 
 class ReduceTaskCognitive:
@@ -249,7 +269,13 @@ class DMTask(ReduceTaskCognitive):
             Tuple[np.ndarray, np.ndarray]: [inputs, outputs]
         """
         dt = self._params.dt
-        trial_time = int(self._params.trial_time / dt)
+        trial_time = int(
+            np.random.uniform(
+                self._params.trial_time - self._params.negative_shift_trial_time,
+                self._params.trial_time + self._params.positive_shift_trial_time,
+            )
+            / dt
+        )
         delay = int(self._params.answer_time / dt)
         if self._mode == "random":
             value = np.random.uniform(0, 1, size=self._batch_size)
@@ -418,8 +444,20 @@ class RomoTask(ReduceTaskCognitive):
             Tuple[np.ndarray, np.ndarray]: [description]
         """
         dt = self._params.dt
-        trial_time = int(self._params.trial_time / dt)
-        delay = int(self._params.delay / dt)
+        trial_time = int(
+            np.random.uniform(
+                self._params.trial_time - self._params.negative_shift_trial_time,
+                self._params.trial_time + self._params.positive_shift_trial_time,
+            )
+            / dt
+        )
+        delay = int(
+            np.random.uniform(
+                self._params.delay - self._params.negative_shift_delay_time,
+                self._params.delay + self._params.positive_shift_delay_time,
+            )
+            / dt
+        )
         answer_time = int(self._params.answer_time / dt)
         if self._mode == "random":
             values_first = np.random.uniform(0, 1, size=self._batch_size)

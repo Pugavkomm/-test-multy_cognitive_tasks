@@ -89,3 +89,19 @@ def test_value_mode_correct_generate_value_equal_0_1():
         assert inputs[0, i, 1] == 0.1
         assert outputs[0, i, 0] == 1
         assert outputs[0, i, 1] == 0
+
+
+def test_dm_shift_trial_time():
+    def_params = DMTaskParameters(
+        negative_shift_trial_time=0.1, positive_shift_trial_time=-0.1
+    )
+    task = DMTask(params=def_params)
+    expected_time = int(
+        (
+            def_params.trial_time
+            - def_params.negative_shift_trial_time
+            + def_params.answer_time
+        )
+        / def_params.dt
+    )
+    assert len(task.dataset(1)[0]) == expected_time

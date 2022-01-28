@@ -51,6 +51,41 @@ def test_romo_rm_task_get_params():
 
 
 def test_regime_values():
-    def_params = RomoTaskParameters(value = (0, 1))
+    def_params = RomoTaskParameters(value=(0, 1))
     task = RomoTask(params=def_params, batch_size=10, mode="value")
     task.dataset()
+
+
+def test_romo_shift_trial_interval():
+    def_params = RomoTaskParameters(
+        negative_shift_trial_time=0.1, positive_shift_trial_time=-0.1
+    )
+    task = RomoTask(params=def_params)
+    expected_time = int(
+        (
+            2 * def_params.trial_time
+            - 2 * def_params.negative_shift_trial_time
+            + def_params.delay
+            + def_params.answer_time
+        )
+        / def_params.dt
+    )
+    assert expected_time == len(task.dataset(1)[0])
+
+
+def test_romo_shit_delay_interval():
+    def_params = RomoTaskParameters(
+        negative_shift_delay_time=0.1,
+        positive_shift_delay_time=-0.1,
+    )
+    task = RomoTask(params=def_params)
+    expected_time = int(
+        (
+            2 * def_params.trial_time
+            + def_params.delay
+            - def_params.negative_shift_trial_time
+            + def_params.answer_time
+        )
+        / def_params.dt
+    )
+    assert len(task.dataset(1)[0]) != expected_time
