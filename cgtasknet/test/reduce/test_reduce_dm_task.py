@@ -1,4 +1,9 @@
-from cgtasknet.tasks.reduce import DefaultParams, DMTask, DMTaskRandomMod
+from cgtasknet.tasks.reduce import (
+    DMTaskParameters,
+    DMTaskRandomModParameters,
+    DMTask,
+    DMTaskRandomMod,
+)
 
 
 def test_dm_task_size():
@@ -22,9 +27,9 @@ def test_dm_task_run_some_datasets():
 
 
 def test_dm_task_get_params():
-    def_params = DefaultParams("DMTask").generate_params()
+    def_params = DMTaskParameters()
     assert DMTask().params == def_params
-    assert (DMTask(batch_size=10).batch_size) == 10
+    assert DMTask(batch_size=10).batch_size == 10
 
 
 def test_dm_rm_task_size():
@@ -44,13 +49,13 @@ def test_dm_rm_task_run_some_datasets():
 
 
 def test_dm_rm_task_get_params():
-    def_params = DefaultParams("DMTaskRandomMod").generate_params()
+    def_params = DMTaskRandomModParameters()
     assert DMTaskRandomMod().params == def_params
-    assert (DMTaskRandomMod(batch_size=10).batch_size) == 10
+    assert DMTaskRandomMod(batch_size=10).batch_size == 10
 
 
 def test_correct_target_dm_task():
-    task = DMTask(batch_size=10)
+    task = DMTask(batch_size=20)
     for _ in range(100):
         inputs, outputs = task.dataset(1)
         for j in range(10):
@@ -59,15 +64,13 @@ def test_correct_target_dm_task():
 
 
 def test_value_mode():
-    params = DefaultParams("DMTask").generate_params()
-    params["value"] = 1
+    params = DMTaskParameters(value=1)
     task = DMTask(params=params, batch_size=10, mode="value")
     task.dataset(10)
 
 
 def test_value_mode_correct_generate_value_equal_1():
-    params = DefaultParams("DMTask").generate_params()
-    params["value"] = 1
+    params = DMTaskParameters(value=1)
     task = DMTask(params=params, batch_size=10, mode="value")
     inputs, outputs = task.dataset(1)
     for i in range(10):
@@ -78,8 +81,7 @@ def test_value_mode_correct_generate_value_equal_1():
 
 
 def test_value_mode_correct_generate_value_equal_0_1():
-    params = DefaultParams("DMTask").generate_params()
-    params["value"] = 0.1
+    params = DMTaskParameters(value=0.1)
     task = DMTask(params=params, batch_size=10, mode="value")
     inputs, outputs = task.dataset(1)
     for i in range(10):

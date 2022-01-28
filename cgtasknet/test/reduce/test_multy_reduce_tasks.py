@@ -1,4 +1,10 @@
-from cgtasknet.tasks.reduce import DefaultParams, MultyReduceTasks
+from cgtasknet.tasks.reduce import (
+    MultyReduceTasks,
+    RomoTaskParameters,
+    DMTaskParameters,
+    RomoTaskRandomModParameters,
+    DMTaskRandomModParameters,
+)
 
 
 def test_init_multy_task():
@@ -58,18 +64,16 @@ def test_run_mylty_task():
 
 
 def test_shape_for_one_input_of_mods():
-    romoparams = DefaultParams("RomoTask").generate_params()
-    romoparams["n_mods"] = 1
-    dmparams = DefaultParams("DMTask").generate_params()
-    dmparams["n_mods"] = 1
+    romo_params = RomoTaskRandomModParameters(n_mods=1)
+    dm_params = DMTaskRandomModParameters(n_mods=1)
     task_list = ["DMTask1", "RomoTask1"]
-    tasks_params = dict([(task_list[1], romoparams), (task_list[0], dmparams)])
-    task = MultyReduceTasks(tasks=tasks_params, batch_size=20, number_of_inputs=1)
-    inputs, outputs = task.dataset(10)
-    assert inputs.shape[1] == 20
+    tasks_params = dict([(task_list[1], romo_params), (task_list[0], dm_params)])
+    task_m = MultyReduceTasks(tasks=tasks_params, batch_size=10, number_of_inputs=1)
+    inputs, outputs = task_m.dataset(10)
+    assert inputs.shape[1] == 10
     assert inputs.shape[2] == 4  # 2 inpyuts + 2 dim rule one-hot vector
     assert outputs.shape[0] == inputs.shape[0]
-    assert outputs.shape[1] == 20
+    assert outputs.shape[1] == 10
     assert outputs.shape[2] == 3
 
 

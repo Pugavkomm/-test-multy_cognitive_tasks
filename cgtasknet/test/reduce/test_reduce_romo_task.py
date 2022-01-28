@@ -1,4 +1,9 @@
-from cgtasknet.tasks.reduce import DefaultParams, RomoTask, RomoTaskRandomMod
+from cgtasknet.tasks.reduce import (
+    RomoTaskParameters,
+    RomoTaskRandomModParameters,
+    RomoTask,
+    RomoTaskRandomMod,
+)
 
 
 def test_romo_task_size():
@@ -18,7 +23,7 @@ def test_romo_task_run_some_datasets():
 
 
 def test_romo_task_get_params():
-    def_params = DefaultParams("RomoTask").generate_params()
+    def_params = RomoTaskParameters()
     assert RomoTask().params == def_params
     assert (RomoTask(batch_size=10).batch_size) == 10
 
@@ -40,13 +45,12 @@ def test_romo_rm_task_run_some_datasets():
 
 
 def test_romo_rm_task_get_params():
-    def_params = DefaultParams("RomoTaskRandomMod").generate_params()
+    def_params = RomoTaskRandomModParameters()
     assert RomoTaskRandomMod().params == def_params
     assert (RomoTaskRandomMod(batch_size=10).batch_size) == 10
 
 
 def test_regime_values():
-    def_params = DefaultParams("RomoTask").generate_params()
-    def_params["values"] = (0, 1)
+    def_params = RomoTaskParameters(value = (0, 1))
     task = RomoTask(params=def_params, batch_size=10, mode="value")
     task.dataset()
