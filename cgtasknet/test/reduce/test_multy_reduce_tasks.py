@@ -19,10 +19,10 @@ def test_init_multy_task():
 def test_size_mylty_task():
     batch_size = 20
     task_list = [
-        "DMTask",
         "RomoTask",
         "DMTask1",
         "DMTask2",
+        "DMTask",
         "RomoTask1",
         "RomoTask2",
         "CtxDMTask1",
@@ -30,7 +30,13 @@ def test_size_mylty_task():
     ]
     task = MultyReduceTasks(tasks=task_list, batch_size=batch_size)
     size = task.feature_and_act_size
+    task[2].set_param('dtasd', 100)
+    for i in range(len(task)):
+        print(f"{task[i].name}: {task[i].params}")
     assert size == (3 + len(task_list), 3)
+
+
+test_size_mylty_task()
 
 
 def test_run_mylty_task():
