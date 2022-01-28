@@ -1,7 +1,5 @@
 from cgtasknet.tasks.reduce import (
     MultyReduceTasks,
-    RomoTaskParameters,
-    DMTaskParameters,
     RomoTaskRandomModParameters,
     DMTaskRandomModParameters,
 )
