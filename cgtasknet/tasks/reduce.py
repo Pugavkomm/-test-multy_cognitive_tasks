@@ -66,26 +66,13 @@ class CtxDMTaskRandomModeParameters(NamedTuple):
 
 
 class DMTaskRandomModParameters(NamedTuple):
-    dt: float = ReduceTaskParameters().dt
-    trial_time: float = DMTaskParameters().trial_time
-    answer_time: float = DMTaskParameters().answer_time
-    value: float = DMTaskParameters().value
+    dm: DMTaskParameters = DMTaskParameters()
     n_mods: int = 2
-    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
-    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
 
 
 class RomoTaskRandomModParameters(NamedTuple):
-    dt: float = RomoTaskParameters().dt
-    trial_time: float = RomoTaskParameters().trial_time
-    answer_time: float = RomoTaskParameters().answer_time
-    value: Tuple[float, float] = RomoTaskParameters().value
-    delay: float = RomoTaskParameters().delay
+    romo: RomoTaskParameters = RomoTaskParameters()
     n_mods: int = 2
-    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
-    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
-    negative_shift_delay_time: float = ReduceTaskParameters().negative_shift_delay_time
-    positive_shift_delay_time: float = ReduceTaskParameters().positive_shift_delay_time
 
 
 class ReduceTaskCognitive(ABC):
@@ -332,7 +319,7 @@ class DMTaskRandomMod(DMTask):
         """
 
         super().__init__(
-            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+            params.dm, batch_size, mode, enable_fixation_delay=enable_fixation_delay
         )
         self._n_mods = params.n_mods
         self._ob_size += self._n_mods - 1
@@ -359,6 +346,15 @@ class DMTaskRandomMod(DMTask):
     @property
     def name(self):
         return "DMTaskRandomMod"
+
+    @property
+    def params(self):
+        return DMTaskRandomModParameters(self._params, n_mods=self._n_mods)
+
+    @params.setter
+    def params(self, new_params: DMTaskRandomModParameters):
+        self._params = new_params.dm
+        self._n_mods = new_params.n_mods
 
 
 class DMTask1(DMTaskRandomMod):
@@ -523,7 +519,7 @@ class RomoTaskRandomMod(RomoTask):
         """
 
         super().__init__(
-            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+            params.romo, batch_size, mode, enable_fixation_delay=enable_fixation_delay
         )
 
         self._n_mods = params.n_mods
@@ -551,6 +547,15 @@ class RomoTaskRandomMod(RomoTask):
     @property
     def name(self):
         return "RomoTaskRandomMod"
+
+    @property
+    def params(self):
+        return RomoTaskRandomModParameters(self._params, n_mods=self._n_mods)
+
+    @params.setter
+    def params(self, new_params: RomoTaskRandomModParameters):
+        self._params = new_params.romo
+        self._n_mods = new_params.n_mods
 
 
 class RomoTask1(RomoTaskRandomMod):
