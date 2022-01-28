@@ -30,7 +30,7 @@ def test_size_mylty_task():
     ]
     task = MultyReduceTasks(tasks=task_list, batch_size=batch_size)
     size = task.feature_and_act_size
-    task[2].set_param('dtasd', 100)
+    task[2].set_param("dtasd", 100)
     for i in range(len(task)):
         print(f"{task[i].name}: {task[i].params}")
     assert size == (3 + len(task_list), 3)
