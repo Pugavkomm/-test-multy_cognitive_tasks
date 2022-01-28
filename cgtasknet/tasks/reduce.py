@@ -8,6 +8,7 @@ The contextual task is transferred to two modes at once.
 The network must ignore the wrong mod.
 """
 from typing import Optional, Tuple, Union, NamedTuple, Any, Type
+from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -87,7 +88,7 @@ class RomoTaskRandomModParameters(NamedTuple):
     positive_shift_delay_time: float = ReduceTaskParameters().positive_shift_delay_time
 
 
-class ReduceTaskCognitive:
+class ReduceTaskCognitive(ABC):
     """
     Class method for ReduceTask .
     """
@@ -114,6 +115,7 @@ class ReduceTaskCognitive:
         self._mode = mode
         self._enable_fixation_delay = enable_fixation_delay
 
+    @abstractmethod
     def one_dataset(self) -> Type[tuple]:
         """
         Return a tuple containing one - dimensional dataset .
@@ -121,7 +123,7 @@ class ReduceTaskCognitive:
         Returns:
             Tuple[np.ndarray, np.ndarray]: [description]
         """
-        return Tuple[np.ndarray, np.ndarray]
+        pass
 
     def dataset(self, n_trials: int = 1, delay_between=0):
         multy_inputs, multy_outputs = self.one_dataset()
