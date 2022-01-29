@@ -36,7 +36,7 @@ class DMTaskParameters(NamedTuple):
 
 class RomoTaskParameters(NamedTuple):
     dt: float = ReduceTaskParameters().dt
-    trial_time = 0.25
+    trial_time: float = 0.25
     answer_time: float = ReduceTaskParameters().answer_time
     value: Tuple[float, float] = (None, None)
     delay: float = 0.15
