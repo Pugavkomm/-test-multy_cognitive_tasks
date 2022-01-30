@@ -8,7 +8,7 @@ of the tasks can only be transferred to one mod.
 The contextual task is transferred to two modes at once.
 The network must ignore the wrong mod.
 """
-from typing import Optional, Tuple, Union, NamedTuple, Any, Type
+from typing import Optional, Tuple, Union, NamedTuple, Any, Type, List
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -150,6 +150,20 @@ class ReduceTaskCognitive(ABC):
     #    if name not in self._params:
     #        raise IndexError(f"{name} is not the parameter")
     #    self._params[name] = value
+
+    def _concatenate_batches(
+        self, l_intputs: List[np.ndarray], l_outputs: List[np.ndarray], max_lenght: int
+    ):
+        for i in range(self._batch_size):
+            tmp_l = l_intputs[i].shape[0]
+            required_lenght = max_lenght - tmp_l
+            input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
+            output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
+            l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
+            l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
+        inputs_plus_rule = np.concatenate(l_intputs, axis=1)
+        outputs = np.concatenate(l_outputs, axis=1)
+        return inputs_plus_rule, outputs
 
     @property
     def feature_and_act_size(self) -> Tuple[int, int]:
@@ -460,15 +474,9 @@ class RomoTask(ReduceTaskCognitive):
             l_outputs.append(outputs)
             lenghts[i] = inputs.shape[0]
         max_lenght = lenghts.max()
-        for i in range(self._batch_size):
-            tmp_l = l_intputs[i].shape[0]
-            required_lenght = max_lenght - tmp_l
-            input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
-            output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
-            l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
-            l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
-        inputs = np.concatenate(l_intputs, axis=1)
-        target_outputs = np.concatenate(l_outputs, axis=1)
+        inputs, target_outputs = self._concatenate_batches(
+            l_intputs, l_outputs, max_lenght
+        )
         return inputs, target_outputs
 
     def _identical_batches(self, batch_size: int = 1):
@@ -919,20 +927,16 @@ class MultyReduceTasks(ReduceTaskCognitive):
                 inputs, outputs = self._task_list[numbers_of_tasks[i]].one_dataset()
                 l_intputs.append(inputs)
                 l_outputs.append(outputs)
-                lenghts[i] = inputs.shape[0]
-            max_lenght = lenghts.max()
-            for i in range(self._batch_size):
-                tmp_l = l_intputs[i].shape[0]
-                required_lenght = max_lenght - tmp_l
-                input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
-                output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
-                l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
-                l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
-                rule = np.zeros((max_lenght, 1, self._ob_size - l_intputs[i].shape[2]))
+                rule = np.zeros(
+                    (inputs.shape[0], 1, self._ob_size - l_intputs[i].shape[2])
+                )
                 rule[:, 0, numbers_of_tasks[i]] = 1
                 l_intputs[i] = np.concatenate((l_intputs[i], rule), axis=2)
-            inputs_plus_rule = np.concatenate(l_intputs, axis=1)
-            outputs = np.concatenate(l_outputs, axis=1)
+                lenghts[i] = inputs.shape[0]
+            max_lenght = lenghts.max()
+            inputs_plus_rule, outputs = self._concatenate_batches(
+                l_intputs, l_outputs, max_lenght
+            )
 
         else:
             current_task = np.random.randint(0, len(self._task_list))
