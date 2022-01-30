@@ -451,20 +451,7 @@ class RomoTask(ReduceTaskCognitive):
         self._uniq_batch = uniq_batch
 
     def _unique_every_batch(self):
-
         dt = self._params.dt
-        start_trial = int(
-            (self._params.trial_time - self.params.negative_shift_trial_time) / dt
-        )
-        stop_trial = int(
-            (self._params.trial_time + self.params.positive_shift_trial_time) / dt
-        )
-        start_delay = int(
-            (self._params.delay - self.params.negative_shift_trial_time) / dt
-        )
-        stop_delay = int(
-            (self._params.delay + self.params.positive_shift_delay_time) / dt
-        )
         lenghts = np.zeros(self._batch_size, dtype=np.int)
         l_intputs = []
         l_outputs = []
