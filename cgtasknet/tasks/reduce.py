@@ -8,7 +8,7 @@ of the tasks can only be transferred to one mod.
 The contextual task is transferred to two modes at once.
 The network must ignore the wrong mod.
 """
-from typing import Optional, Tuple, Union, NamedTuple, Any, Type
+from typing import Optional, Tuple, Union, NamedTuple, Any, Type, List
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -150,6 +150,20 @@ class ReduceTaskCognitive(ABC):
     #    if name not in self._params:
     #        raise IndexError(f"{name} is not the parameter")
     #    self._params[name] = value
+
+    def _concatenate_batches(
+        self, l_intputs: List[np.ndarray], l_outputs: List[np.ndarray], max_lenght: int
+    ):
+        for i in range(self._batch_size):
+            tmp_l = l_intputs[i].shape[0]
+            required_lenght = max_lenght - tmp_l
+            input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
+            output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
+            l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
+            l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
+        inputs_plus_rule = np.concatenate(l_intputs, axis=1)
+        outputs = np.concatenate(l_outputs, axis=1)
+        return inputs_plus_rule, outputs
 
     @property
     def feature_and_act_size(self) -> Tuple[int, int]:
@@ -418,6 +432,7 @@ class RomoTask(ReduceTaskCognitive):
         batch_size: int = 1,
         mode: str = "random",
         enable_fixation_delay: bool = False,
+        uniq_batch: bool = True,
     ) -> None:
         """
         Initialize the model .
@@ -433,14 +448,24 @@ class RomoTask(ReduceTaskCognitive):
         super().__init__(params, batch_size, mode, enable_fixation_delay)
         self._ob_size = 2
         self._act_size = 3
+        self._uniq_batch = uniq_batch
 
-    def _one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Returns a single dataset with the given size and target .
+    def _unique_every_batch(self):
+        lenghts = np.zeros(self._batch_size, dtype=np.int)
+        l_intputs = []
+        l_outputs = []
+        for i in range(self._batch_size):
+            inputs, outputs = self._identical_batches(batch_size=1)
+            l_intputs.append(inputs)
+            l_outputs.append(outputs)
+            lenghts[i] = inputs.shape[0]
+        max_lenght = lenghts.max()
+        inputs, target_outputs = self._concatenate_batches(
+            l_intputs, l_outputs, max_lenght
+        )
+        return inputs, target_outputs
 
-        Returns:
-            Tuple[np.ndarray, np.ndarray]: [description]
-        """
+    def _identical_batches(self, batch_size: int = 1):
         dt = self._params.dt
         trial_time = int(
             np.random.uniform(
@@ -458,27 +483,39 @@ class RomoTask(ReduceTaskCognitive):
         )
         answer_time = int(self._params.answer_time / dt)
         if self._mode == "random":
-            values_first = np.random.uniform(0, 1, size=self._batch_size)
-            values_second = np.random.uniform(0, 1, size=self._batch_size)
+            values_first = np.random.uniform(0, 1, size=batch_size)
+            values_second = np.random.uniform(0, 1, size=batch_size)
         elif self._mode == "value":
-            values_first = np.ones(self._batch_size) * self._params.value[0]
-            values_second = np.ones(self._batch_size) * self._params.value[1]
+            values_first = np.ones(batch_size) * self._params.value[0]
+            values_second = np.ones(batch_size) * self._params.value[1]
         else:
-            values_first = np.zeros(self._batch_size)
-            values_second = np.zeros(self._batch_size)
+            values_first = np.zeros(batch_size)
+            values_second = np.zeros(batch_size)
         inputs = np.zeros(
-            ((2 * trial_time + delay + answer_time), self._batch_size, self._ob_size)
+            ((2 * trial_time + delay + answer_time), batch_size, self._ob_size)
         )
         inputs[: 2 * trial_time + delay, :, 0] = 1
         inputs[:trial_time, :, 1] = values_first
         inputs[trial_time + delay : -answer_time, :, 1] = values_second
         target_output = np.zeros(
-            ((2 * trial_time + delay + answer_time), self._batch_size, self._act_size)
+            ((2 * trial_time + delay + answer_time), batch_size, self._act_size)
         )
         target_output[:, :, 0] = inputs[:, :, 0]
         target_output[2 * trial_time + delay :, :, 1] = values_first < values_second
         target_output[2 * trial_time + delay :, :, 2] = values_second < values_first
         return inputs, target_output
+
+    def _one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Returns a single dataset with the given size and target .
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: [description]
+        """
+        if self._uniq_batch:
+            return self._identical_batches(self._batch_size)
+        else:
+            return self._unique_every_batch()
 
     def one_dataset(self):
         """
@@ -876,20 +913,16 @@ class MultyReduceTasks(ReduceTaskCognitive):
                 inputs, outputs = self._task_list[numbers_of_tasks[i]].one_dataset()
                 l_intputs.append(inputs)
                 l_outputs.append(outputs)
-                lenghts[i] = inputs.shape[0]
-            max_lenght = lenghts.max()
-            for i in range(self._batch_size):
-                tmp_l = l_intputs[i].shape[0]
-                required_lenght = max_lenght - tmp_l
-                input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
-                output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
-                l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
-                l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
-                rule = np.zeros((max_lenght, 1, self._ob_size - l_intputs[i].shape[2]))
+                rule = np.zeros(
+                    (inputs.shape[0], 1, self._ob_size - l_intputs[i].shape[2])
+                )
                 rule[:, 0, numbers_of_tasks[i]] = 1
                 l_intputs[i] = np.concatenate((l_intputs[i], rule), axis=2)
-            inputs_plus_rule = np.concatenate(l_intputs, axis=1)
-            outputs = np.concatenate(l_outputs, axis=1)
+                lenghts[i] = inputs.shape[0]
+            max_lenght = lenghts.max()
+            inputs_plus_rule, outputs = self._concatenate_batches(
+                l_intputs, l_outputs, max_lenght
+            )
 
         else:
             current_task = np.random.randint(0, len(self._task_list))
