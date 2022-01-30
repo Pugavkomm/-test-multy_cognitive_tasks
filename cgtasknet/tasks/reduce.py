@@ -451,8 +451,6 @@ class RomoTask(ReduceTaskCognitive):
         stop_delay = int(
             (self._params.delay + self.params.positive_shift_delay_time) / dt
         )
-        time_trial = np.random.randint(start_trial, stop_trial, size=self._batch_size)
-        time_delay = np.random.randint(start_delay, stop_delay, size=self._batch_size)
         lenghts = np.zeros(self._batch_size, dtype=np.int)
         l_intputs = []
         l_outputs = []
