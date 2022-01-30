@@ -451,7 +451,6 @@ class RomoTask(ReduceTaskCognitive):
         self._uniq_batch = uniq_batch
 
     def _unique_every_batch(self):
-        dt = self._params.dt
         lenghts = np.zeros(self._batch_size, dtype=np.int)
         l_intputs = []
         l_outputs = []
