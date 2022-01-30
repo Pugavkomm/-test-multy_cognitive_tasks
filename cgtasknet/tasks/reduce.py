@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 """
 In reduced problems, we use two modes, which
 are quoted in two different directions. Some
@@ -820,6 +821,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         delay_between: int = 0,  # iterations
         number_of_inputs: int = 2,
         enable_fixation_delay: bool = False,
+        sequence_bathces: bool = False,
     ):
         """
         Initialize the object with the initial state of the model .
@@ -828,14 +830,16 @@ class MultyReduceTasks(ReduceTaskCognitive):
             tasks (Union[dict[str, dict[str, float]], list[str]]): [description]
             batch_size (int, optional): [description]. Defaults to 1.
             mode (str, optional): [description]. Defaults to "random".
+            delay_between (int, optional): [description]. Number of iteration without signal
         """
         self._delay_between = delay_between
         self._initial_tasks_list = dict()
         self._enable_fixation_delay = enable_fixation_delay
+        self._sequence_batchers = sequence_bathces
         if type(tasks) == list:
             for task_name in tasks:
                 self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
-                    batch_size=batch_size,
+                    batch_size=batch_size if (not sequence_bathces) else 1,
                     mode=mode,
                     enable_fixation_delay=enable_fixation_delay,
                 )
@@ -843,7 +847,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
             for task_name in tasks:
                 self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
                     params=tasks[task_name],
-                    batch_size=batch_size,
+                    batch_size=batch_size if (not sequence_bathces) else 1,
                     mode=mode,
                     enable_fixation_delay=enable_fixation_delay,
                 )
@@ -861,12 +865,40 @@ class MultyReduceTasks(ReduceTaskCognitive):
         Returns:
             Tuple[np.ndarray, np.ndarray]: [description]
         """
-        current_task = np.random.choice([i for i in range(len(self._task_list))])
+        if self._sequence_batchers:
+            numbers_of_tasks = np.random.randint(
+                0, len(self._task_list), size=self._batch_size
+            )
+            lenghts = np.zeros(self._batch_size, dtype=np.int)
+            l_intputs = []
+            l_outputs = []
+            for i in range(self._batch_size):
+                inputs, outputs = self._task_list[numbers_of_tasks[i]].one_dataset()
+                l_intputs.append(inputs)
+                l_outputs.append(outputs)
+                lenghts[i] = inputs.shape[0]
+            max_lenght = lenghts.max()
+            for i in range(self._batch_size):
+                tmp_l = l_intputs[i].shape[0]
+                required_lenght = max_lenght - tmp_l
+                input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
+                output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
+                l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
+                l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
+                rule = np.zeros((max_lenght, 1, self._ob_size - l_intputs[i].shape[2]))
+                rule[:, 0, numbers_of_tasks[i]] = 1
+                l_intputs[i] = np.concatenate((l_intputs[i], rule), axis=2)
+            inputs_plus_rule = np.concatenate(l_intputs, axis=1)
+            outputs = np.concatenate(l_outputs, axis=1)
 
-        inputs, outputs = self._task_list[current_task].one_dataset()
-        inputs_plus_rule = np.zeros((inputs.shape[0], self._batch_size, self._ob_size))
-        inputs_plus_rule[:, :, -len(self._task_list) + current_task] = 1
-        inputs_plus_rule[:, :, : -len(self._task_list)] = inputs
+        else:
+            current_task = np.random.randint(0, len(self._task_list))
+            inputs, outputs = self._task_list[current_task].one_dataset()
+            inputs_plus_rule = np.zeros(
+                (inputs.shape[0], self._batch_size, self._ob_size)
+            )
+            inputs_plus_rule[:, :, -len(self._task_list) + current_task] = 1
+            inputs_plus_rule[:, :, : -len(self._task_list)] = inputs
         if self._delay_between > 0:
             delay_inputs = np.zeros(
                 (
