@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from array import array
 
 """
 In reduced problems, we use two modes, which
