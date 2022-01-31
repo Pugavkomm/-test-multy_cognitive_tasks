@@ -159,6 +159,8 @@ class ReduceTaskCognitive(ABC):
             required_lenght = max_lenght - tmp_l
             input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
             output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
+            if self._enable_fixation_delay:
+                input_add[:, :, 0] = 1
             l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
             l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
         inputs_plus_rule = np.concatenate(l_intputs, axis=1)
