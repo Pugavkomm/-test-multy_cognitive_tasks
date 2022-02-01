@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import multiprocessing
 
 """
 In reduced problems, we use two modes, which
@@ -12,6 +13,37 @@ from typing import Optional, Tuple, Union, NamedTuple, Any, Type, List
 from abc import ABC, abstractmethod
 
 import numpy as np
+
+
+def _parallel_concatenate_batches(
+    l_inputs, l_outputs, max_length, enable_fixation_delay, batch_size
+):
+    for i in range(batch_size):
+        inputs_bufer = np.zeros((max_length, *l_inputs[0].shape[1:3]))
+        outputs_bufer = np.zeros((max_length, *l_outputs[0].shape[1:3]))
+        required_length = max_length - l_inputs[i].shape[0]
+        if enable_fixation_delay:
+            inputs_bufer[:required_length, :, 0] = 1
+            outputs_bufer[:required_length, :, 0] = 1
+        inputs_bufer[required_length:, ...] = l_inputs[i]
+        outputs_bufer[required_length:, ...] = l_outputs[i]
+        l_inputs[i] = inputs_bufer
+        l_outputs[i] = outputs_bufer
+
+
+def _concatenate_batches_external(
+    l_intputs: List[np.ndarray],
+    l_outputs: List[np.ndarray],
+    max_length: int,
+    batch_size: int,
+    enable_fixation_delay: bool,
+):
+    _parallel_concatenate_batches(
+        l_intputs, l_outputs, max_length, enable_fixation_delay, batch_size
+    )
+    inputs_plus_rule = np.concatenate(l_intputs, axis=1)
+    outputs = np.concatenate(l_outputs, axis=1)
+    return inputs_plus_rule, outputs
 
 
 class ReduceTaskParameters(NamedTuple):
@@ -152,21 +184,15 @@ class ReduceTaskCognitive(ABC):
     #    self._params[name] = value
 
     def _concatenate_batches(
-        self, l_intputs: List[np.ndarray], l_outputs: List[np.ndarray], max_lenght: int
+        self, l_intputs: List[np.ndarray], l_outputs: List[np.ndarray], max_length: int
     ):
-        for i in range(self._batch_size):
-            tmp_l = l_intputs[i].shape[0]
-            required_lenght = max_lenght - tmp_l
-            input_add = np.zeros((required_lenght, *l_intputs[i].shape[1:3]))
-            output_add = np.zeros((required_lenght, *l_outputs[i].shape[1:3]))
-            if self._enable_fixation_delay:
-                input_add[:, :, 0] = 1
-                output_add[:, :, 0] = 1
-            l_intputs[i] = np.concatenate((input_add, l_intputs[i]))
-            l_outputs[i] = np.concatenate((output_add, l_outputs[i]))
-        inputs_plus_rule = np.concatenate(l_intputs, axis=1)
-        outputs = np.concatenate(l_outputs, axis=1)
-        return inputs_plus_rule, outputs
+        return _concatenate_batches_external(
+            l_intputs,
+            l_outputs,
+            max_length,
+            self._batch_size,
+            self._enable_fixation_delay,
+        )
 
     @property
     def feature_and_act_size(self) -> Tuple[int, int]:
@@ -277,10 +303,9 @@ class DMTask(ReduceTaskCognitive):
         dt = self._params.dt
         trial_time = int(
             np.random.uniform(
-                self._params.trial_time - self._params.negative_shift_trial_time,
-                self._params.trial_time + self._params.positive_shift_trial_time,
-            )
-            / dt
+                (self._params.trial_time - self._params.negative_shift_trial_time) ,
+                (self._params.trial_time + self._params.positive_shift_trial_time),
+            ) / dt
         )
         delay = int(self._params.answer_time / dt)
         if self._mode == "random":
@@ -298,9 +323,6 @@ class DMTask(ReduceTaskCognitive):
         target_outputs[:, :, 0] = inputs[:, :, 0]
         target_outputs[trial_time:, :, 1] = value < self.threshold
         target_outputs[trial_time:, :, 2] = value > self.threshold
-        # target_outputs[:, :, 1] = values < self.threshold
-        # target_outputs[:, :, 2] = values > self.threshold
-
         return inputs, target_outputs
 
     def one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
@@ -454,17 +476,17 @@ class RomoTask(ReduceTaskCognitive):
         self._uniq_batch = uniq_batch
 
     def _unique_every_batch(self):
-        lenghts = np.zeros(self._batch_size, dtype=np.int)
+        max_length = 0
         l_intputs = []
         l_outputs = []
         for i in range(self._batch_size):
             inputs, outputs = self._identical_batches(batch_size=1)
             l_intputs.append(inputs)
             l_outputs.append(outputs)
-            lenghts[i] = inputs.shape[0]
-        max_lenght = lenghts.max()
+            max_length = max(max_length, inputs.shape[0])
+
         inputs, target_outputs = self._concatenate_batches(
-            l_intputs, l_outputs, max_lenght
+            l_intputs, l_outputs, max_length
         )
         return inputs, target_outputs
 
@@ -909,22 +931,19 @@ class MultyReduceTasks(ReduceTaskCognitive):
             numbers_of_tasks = np.random.randint(
                 0, len(self._task_list), size=self._batch_size
             )
-            lenghts = np.zeros(self._batch_size, dtype=np.int)
+            max_length = 0
             l_intputs = []
             l_outputs = []
             for i in range(self._batch_size):
                 inputs, outputs = self._task_list[numbers_of_tasks[i]].one_dataset()
-                l_intputs.append(inputs)
+                input_bufer = np.zeros((inputs.shape[0], 1, self._ob_size))
+                input_bufer[:, :, : inputs.shape[-1]] = inputs[...]
+                input_bufer[:, :, inputs.shape[-1] + numbers_of_tasks[i]] = 1
+                l_intputs.append(input_bufer)
                 l_outputs.append(outputs)
-                rule = np.zeros(
-                    (inputs.shape[0], 1, self._ob_size - l_intputs[i].shape[2])
-                )
-                rule[:, 0, numbers_of_tasks[i]] = 1
-                l_intputs[i] = np.concatenate((l_intputs[i], rule), axis=2)
-                lenghts[i] = inputs.shape[0]
-            max_lenght = lenghts.max()
+                max_length = max(max_length, inputs.shape[0])
             inputs_plus_rule, outputs = self._concatenate_batches(
-                l_intputs, l_outputs, max_lenght
+                l_intputs, l_outputs, max_length
             )
 
         else:
