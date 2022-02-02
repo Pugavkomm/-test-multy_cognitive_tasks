@@ -303,9 +303,10 @@ class DMTask(ReduceTaskCognitive):
         dt = self._params.dt
         trial_time = int(
             np.random.uniform(
-                (self._params.trial_time - self._params.negative_shift_trial_time) ,
+                (self._params.trial_time - self._params.negative_shift_trial_time),
                 (self._params.trial_time + self._params.positive_shift_trial_time),
-            ) / dt
+            )
+            / dt
         )
         delay = int(self._params.answer_time / dt)
         if self._mode == "random":
