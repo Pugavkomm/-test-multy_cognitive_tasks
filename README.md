@@ -26,7 +26,7 @@ A library aimed at studying the dynamics of spiking neural networks while solvin
 ## Installation
 
 ### Installation from source code
-
+> :warning: **Today, you need to install norse from my branch in order to support lif_adex_refrac. In the near future, I hope that I will complete the tests and it will be accepted into the main branch of the library.**
 1. `git clone https://github.com/Pugavkomm/cgtasknet.git`
 2. You shold install [pytorch](https://pytorch.org/get-started/locally/) (stable version)
 3. `python setup.py install`
@@ -50,7 +50,7 @@ Main dependencies:
 
 1.  [torch](https://pytorch.org/), [norse](https://github.com/norse/norse) -- Model and learning;
 1.  [numpy](https://numpy.org/) -- Prepare datasets;
-1.  [matplotlib](https://matplotlib.org/) -- Data visualization (Currently not in use!)
+1.  [matplotlib](https://matplotlib.org/) -- Data visualization (Currently not in use!);
 
 
 
@@ -60,11 +60,13 @@ Main dependencies:
 Several classes of cognitive tasks are considered:
 
 1.  [Romo task](https://www.nature.com/articles/20939)
-1.  [Context decision making task](https://www.nature.com/articles/nature12742)
-1.  ...
+2.  [Context decision making task](https://www.nature.com/articles/nature12742)
+3.  [decision making task](...)
+4.  [Working memory tasks](...): DM with delay (just romo task), context DM with delay. 
+5.  [Go/No-Go](...)
 
 ## TODO
 * **Add my own wrapper over the loading model to load parameters (and save) as well;**
-* **Add some tests for instrument_subgroups;**
-* **Add somet tests for instrument_pca;**
-* **Add some tests for all models.**
+* ~~Add some tests for instrument_subgroups;~~
+* ~~Add somet tests for instrument_pca;~~
+* ~~Add some tests for all models.~~
