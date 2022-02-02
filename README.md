@@ -27,6 +27,7 @@ A library aimed at studying the dynamics of spiking neural networks while solvin
 
 ### Installation from source code
 > :warning: **Today, you need to install norse from [my rep](https://github.com/Pugavkomm/norse.git) in order to support lif_adex_refrac. In the near future, I hope that I will complete the tests and it will be accepted into the main branch of the library.**
+***
 1. `git clone https://github.com/Pugavkomm/cgtasknet.git`
 2. You shold install [pytorch](https://pytorch.org/get-started/locally/) (stable version)
 3. `python setup.py install`
