@@ -1,7 +1,7 @@
-import torch
-import norse.torch as snn
-
 from typing import Optional, Tuple
+
+import norse.torch as snn
+import torch
 from norse.torch import LIFAdExRefracParameters, LIFAdExRefracState
 from norse.torch.module.exp_filter import ExpFilter
 
