@@ -36,9 +36,16 @@ class SNNlifadexrefrac(torch.nn.Module):
     ) -> Tuple[torch.tensor, LIFAdExRefracState]:
 
         outputs, states = save_states(x, self.save_states, self.adexrefrac, state)
-
         outputs = self.exp_f(outputs)
-        return (outputs, states)
+        return outputs, states
+
+    @property
+    def save(self):
+        return self.save_states
+
+    @save.setter
+    def save(self, new_save_states: bool):
+        self.save_states = new_save_states
 
     @staticmethod
     def type_parameters():
