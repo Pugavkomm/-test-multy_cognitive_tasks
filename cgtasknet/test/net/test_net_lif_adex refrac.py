@@ -1,9 +1,10 @@
-from cgtasknet.net.lifadexrefrac import SNNlifadexrefrac
 import torch
 from norse.torch.functional.lif_adex_refrac import (
     LIFAdExRefracParameters,
     LIFAdExRefracState,
 )
+
+from cgtasknet.net.lifadexrefrac import SNNlifadexrefrac
 
 
 def test_init_lif_refrac():
