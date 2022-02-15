@@ -57,14 +57,14 @@ class MultyReduceTasks(ReduceTaskCognitive):
         self._initial_tasks_list = dict()
         self._enable_fixation_delay = enable_fixation_delay
         self._sequence_batchers = sequence_bathces
-        if type(tasks) == list:
+        if isinstance(tasks, list):
             for task_name in tasks:
                 self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
                     batch_size=batch_size if (not sequence_bathces) else 1,
                     mode=mode,
                     enable_fixation_delay=enable_fixation_delay,
                 )
-        if type(tasks) == dict:
+        if isinstance(tasks, dict):
             for task_name in tasks:
                 self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
                     params=tasks[task_name],

@@ -64,7 +64,7 @@ class RomoTask(ReduceTaskCognitive):
         max_length = 0
         l_intputs = []
         l_outputs = []
-        for i in range(self._batch_size):
+        for _ in range(self._batch_size):
             inputs, outputs = self._identical_batches(batch_size=1)
             l_intputs.append(inputs)
             l_outputs.append(outputs)

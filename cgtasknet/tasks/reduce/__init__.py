@@ -7,14 +7,15 @@ The network must ignore the wrong mod.
 """
 from __future__ import annotations
 
-"""Reduce cognitive tasks"""
 from .ctxdm import *
 from .dm import *
 from .multy import *
 from .romo import *
+from .reduce_task import *
 
 __all__ = [
     "ReduceTaskParameters",
+    "ReduceTaskCognitive",
     "DMTaskParameters",
     "RomoTaskParameters",
     "CtxDMTaskParameters",
