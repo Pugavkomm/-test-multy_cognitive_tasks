@@ -1,6 +1,8 @@
 import torch
-from norse.torch.functional.lif_adex_refrac import (LIFAdExRefracParameters,
-                                                    LIFAdExRefracState)
+from norse.torch.functional.lif_adex_refrac import (
+    LIFAdExRefracParameters,
+    LIFAdExRefracState,
+)
 
 from cgtasknet.net.lifadexrefrac import SNNlifadexrefrac
 

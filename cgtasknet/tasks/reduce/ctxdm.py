@@ -3,8 +3,7 @@ from typing import NamedTuple, Optional, Tuple
 import numpy as np
 
 from cgtasknet.tasks.reduce.dm import DMTask, DMTaskParameters
-from cgtasknet.tasks.reduce.reduce_task import (ReduceTaskCognitive,
-                                                ReduceTaskParameters)
+from cgtasknet.tasks.reduce.reduce_task import ReduceTaskCognitive, ReduceTaskParameters
 
 
 class CtxDMTaskParameters(NamedTuple):

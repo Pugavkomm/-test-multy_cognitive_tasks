@@ -5,8 +5,13 @@ from .lifadex import SNNlifadex
 from .lifadexrefrac import SNNlifadexrefrac
 from .liflsnn import SNNAlif
 from .lifrefrac import SNNLifRefrac
-from .states import (LIFAdExInitState, LIFAdExRefracInitState, LIFInitState,
-                     LIFRefracInitState, LSNNInitState)
+from .states import (
+    LIFAdExInitState,
+    LIFAdExRefracInitState,
+    LIFInitState,
+    LIFRefracInitState,
+    LSNNInitState,
+)
 
 __all__ = [
     # States

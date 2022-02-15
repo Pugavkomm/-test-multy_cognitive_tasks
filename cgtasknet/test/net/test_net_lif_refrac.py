@@ -1,6 +1,5 @@
 import torch
-from norse.torch.functional.lif_refrac import (LIFRefracParameters,
-                                               LIFRefracState)
+from norse.torch.functional.lif_refrac import LIFRefracParameters, LIFRefracState
 
 from cgtasknet.net.lifrefrac import SNNLifRefrac
 

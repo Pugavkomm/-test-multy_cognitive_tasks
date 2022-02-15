@@ -1,7 +1,9 @@
 import torch
 
-from cgtasknet.instruments.correct_answer import (_is_correct_output,
-                                                  _is_correct_output_batches)
+from cgtasknet.instruments.correct_answer import (
+    _is_correct_output,
+    _is_correct_output_batches,
+)
 
 
 def test_correct_output_good_answer():

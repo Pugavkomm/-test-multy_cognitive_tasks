@@ -1,6 +1,9 @@
-from cgtasknet.tasks.reduce import (RomoTask, RomoTaskParameters,
-                                    RomoTaskRandomMod,
-                                    RomoTaskRandomModParameters)
+from cgtasknet.tasks.reduce import (
+    RomoTask,
+    RomoTaskParameters,
+    RomoTaskRandomMod,
+    RomoTaskRandomModParameters,
+)
 
 
 def test_romo_task_size():
