@@ -1,6 +1,8 @@
 from typing import Tuple
-from .correct_answer import _is_correct_output
+
 import torch
+
+from .correct_answer import _is_correct_output
 
 
 def sort_elemnts_by_another(base: any, for_sort: any):

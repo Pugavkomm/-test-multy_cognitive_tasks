@@ -6,11 +6,11 @@ from .lifadexrefrac import SNNlifadexrefrac
 from .liflsnn import SNNAlif
 from .lifrefrac import SNNLifRefrac
 from .states import (
+    LIFAdExInitState,
+    LIFAdExRefracInitState,
     LIFInitState,
     LIFRefracInitState,
     LSNNInitState,
-    LIFAdExInitState,
-    LIFAdExRefracInitState,
 )
 
 __all__ = [

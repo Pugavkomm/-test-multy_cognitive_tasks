@@ -1,8 +1,8 @@
 from cgtasknet.tasks.reduce import (
-    RomoTaskParameters,
-    RomoTaskRandomModParameters,
     RomoTask,
+    RomoTaskParameters,
     RomoTaskRandomMod,
+    RomoTaskRandomModParameters,
 )
 
 

@@ -1,8 +1,8 @@
 from cgtasknet.tasks.reduce import (
-    DMTaskParameters,
-    DMTaskRandomModParameters,
     DMTask,
+    DMTaskParameters,
     DMTaskRandomMod,
+    DMTaskRandomModParameters,
 )
 
 

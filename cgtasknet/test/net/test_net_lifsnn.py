@@ -1,6 +1,7 @@
-from cgtasknet.net.liflsnn import SNNAlif
 import torch
 from norse.torch.functional.lsnn import LSNNParameters, LSNNState
+
+from cgtasknet.net.liflsnn import SNNAlif
 
 
 def test_init_lif_refrac():

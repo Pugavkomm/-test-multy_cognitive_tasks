@@ -1,5 +1,6 @@
-from cgtasknet.instruments.instrument_subgroups import SubgroupFinder
 import torch
+
+from cgtasknet.instruments.instrument_subgroups import SubgroupFinder
 
 
 def test_create_subgroup_finder():
