@@ -2,7 +2,8 @@ from typing import Optional, Tuple
 
 import norse.torch as snn
 import torch
-from norse.torch.functional.lif_refrac import LIFRefracParameters, LIFRefracState
+from norse.torch.functional.lif_refrac import (LIFRefracParameters,
+                                               LIFRefracState)
 from norse.torch.module.exp_filter import ExpFilter
 
 from cgtasknet.net.save_states import save_states

@@ -1,8 +1,6 @@
-from cgtasknet.tasks.reduce import (
-    MultyReduceTasks,
-    RomoTaskRandomModParameters,
-    DMTaskRandomModParameters,
-)
+from cgtasknet.tasks.reduce import (DMTaskRandomModParameters,
+                                    MultyReduceTasks,
+                                    RomoTaskRandomModParameters)
 
 
 def test_init_multy_task():

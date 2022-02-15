@@ -1,0 +1,4 @@
+setuptools~=56.0.0
+norse~=0.0.7.post1
+torch~=1.10.1+cu113
+numpy~=1.21.5

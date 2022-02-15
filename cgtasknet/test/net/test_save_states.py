@@ -1,6 +1,7 @@
+import torch
+
 from cgtasknet.net import LIFAdExRefracInitState
 from cgtasknet.net.lifadexrefrac import SNNlifadexrefrac
-import torch
 
 
 def test_init_lif_refrac():

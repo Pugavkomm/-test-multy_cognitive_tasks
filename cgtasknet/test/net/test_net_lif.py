@@ -1,6 +1,7 @@
-from cgtasknet.net.lif import SNNLif
 import torch
 from norse.torch.functional.lif import LIFParameters, LIFState
+
+from cgtasknet.net.lif import SNNLif
 
 
 def test_init_lif():

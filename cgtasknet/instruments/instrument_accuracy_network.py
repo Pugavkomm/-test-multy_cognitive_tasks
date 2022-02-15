@@ -1,5 +1,6 @@
-from .correct_answer import _is_correct_output_batches
 import torch
+
+from .correct_answer import _is_correct_output_batches
 
 
 def correct_answer(

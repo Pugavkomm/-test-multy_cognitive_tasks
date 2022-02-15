@@ -1,9 +1,9 @@
 import torch
 from norse.torch.functional.lif import LIFState
 from norse.torch.functional.lif_adex import LIFAdExState
+from norse.torch.functional.lif_adex_refrac import LIFAdExRefracState
 from norse.torch.functional.lif_refrac import LIFRefracState
 from norse.torch.functional.lsnn import LSNNState
-from norse.torch.functional.lif_adex_refrac import LIFAdExRefracState
 
 
 class InitialStates:
