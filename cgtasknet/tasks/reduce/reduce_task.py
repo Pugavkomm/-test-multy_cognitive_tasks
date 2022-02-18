@@ -1,7 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import List, NamedTuple, Tuple, Type
+from random import uniform
+from typing import Any, List, NamedTuple, Tuple, Type
 
 import numpy as np
+
+
+def _generate_random_intervals(
+    dt: float, average: float, left_shift: float, right_shift: float
+):
+    return round(uniform(average - left_shift, average + right_shift) / dt)
 
 
 def _parallel_concatenate_batches(
@@ -54,10 +61,11 @@ class ReduceTaskCognitive(ABC):
 
     def __init__(
         self,
-        params: ReduceTaskParameters,
+        params: Any,
         batch_size: int,
         mode: str,
         enable_fixation_delay: bool = False,
+        uniq_batch: bool = False,
     ) -> None:
         """
         Initialize the instance .
@@ -73,6 +81,7 @@ class ReduceTaskCognitive(ABC):
         self._act_size = 0
         self._mode = mode
         self._enable_fixation_delay = enable_fixation_delay
+        self._uniq_batch = uniq_batch
 
     @abstractmethod
     def one_dataset(self) -> Type[tuple]:
@@ -117,10 +126,26 @@ class ReduceTaskCognitive(ABC):
 
         return multy_inputs, multy_outputs
 
-    # def set_param(self, name: str, value: int):
-    #    if name not in self._params:
-    #        raise IndexError(f"{name} is not the parameter")
-    #    self._params[name] = value
+    @abstractmethod
+    def _identical_batches(self, batch_size: int = 1):
+        r"""
+        _description_
+        """
+
+    def _unique_every_batch(self):
+        max_length = 0
+        l_intputs = []
+        l_outputs = []
+        for _ in range(self._batch_size):
+            inputs, outputs = self._identical_batches(batch_size=1)
+            l_intputs.append(inputs)
+            l_outputs.append(outputs)
+            max_length = max(max_length, inputs.shape[0])
+
+        inputs, target_outputs = self._concatenate_batches(
+            l_intputs, l_outputs, max_length
+        )
+        return inputs, target_outputs
 
     def _concatenate_batches(
         self, l_intputs: List[np.ndarray], l_outputs: List[np.ndarray], max_length: int

@@ -2,7 +2,11 @@ from typing import NamedTuple, Optional, Tuple
 
 import numpy as np
 
-from cgtasknet.tasks.reduce.reduce_task import ReduceTaskCognitive, ReduceTaskParameters
+from cgtasknet.tasks.reduce.reduce_task import (
+    _generate_random_intervals,
+    ReduceTaskCognitive,
+    ReduceTaskParameters,
+)
 
 
 class DMTaskParameters(NamedTuple):
@@ -30,14 +34,14 @@ class DMTask(ReduceTaskCognitive):
         [type]: [description]
     """
 
-    threshold = 0.5
-
     def __init__(
         self,
         params: Optional[DMTaskParameters] = DMTaskParameters(),
         batch_size: int = 1,
         mode: str = "random",
         enable_fixation_delay: bool = False,
+        uniq_batch: bool = False,
+        threshold: float = 0.5,
     ) -> None:
         """
         Initialize the model .
@@ -52,10 +56,39 @@ class DMTask(ReduceTaskCognitive):
             raise ValueError("params[value] is None")
 
         super().__init__(
-            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+            params,
+            batch_size,
+            mode,
+            enable_fixation_delay=enable_fixation_delay,
+            uniq_batch=uniq_batch,
         )
         self._ob_size = 2
         self._act_size = 3
+        self._threshold = threshold
+
+    def _identical_batches(self, batch_size: int = 1):
+        dt = self._params.dt
+        trial_time = _generate_random_intervals(
+            dt,
+            self._params.trial_time,
+            self._params.negative_shift_trial_time,
+            self._params.positive_shift_trial_time,
+        )
+        delay = round(self._params.answer_time / dt)
+        if self._mode == "random":
+            value = np.random.uniform(0, 1, size=batch_size)
+        elif self._mode == "value":
+            value = np.ones(batch_size) * self._params.value
+        else:
+            value = np.zeros(batch_size)
+        inputs = np.zeros((trial_time + delay, batch_size, self._ob_size))
+        inputs[:trial_time, :, 0] = 1
+        inputs[:trial_time, :, 1] = value[:]
+        target_outputs = np.zeros((trial_time + delay, batch_size, self._act_size))
+        target_outputs[:, :, 0] = inputs[:, :, 0]
+        target_outputs[trial_time:, :, 1] = value < self._threshold
+        target_outputs[trial_time:, :, 2] = value > self._threshold
+        return inputs, target_outputs
 
     def _one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -64,31 +97,10 @@ class DMTask(ReduceTaskCognitive):
         Returns:
             Tuple[np.ndarray, np.ndarray]: [inputs, outputs]
         """
-        dt = self._params.dt
-        trial_time = int(
-            np.random.uniform(
-                (self._params.trial_time - self._params.negative_shift_trial_time),
-                (self._params.trial_time + self._params.positive_shift_trial_time),
-            )
-            / dt
-        )
-        delay = int(self._params.answer_time / dt)
-        if self._mode == "random":
-            value = np.random.uniform(0, 1, size=self._batch_size)
-        elif self._mode == "value":
-            value = np.ones(self._batch_size) * self._params.value
+        if self._uniq_batch:
+            return self._unique_every_batch()
         else:
-            value = np.zeros(self._batch_size)
-        inputs = np.zeros((trial_time + delay, self._batch_size, self._ob_size))
-        inputs[:trial_time, :, 0] = 1
-        inputs[:trial_time, :, 1] = value[:]
-        target_outputs = np.zeros(
-            (trial_time + delay, self._batch_size, self._act_size)
-        )
-        target_outputs[:, :, 0] = inputs[:, :, 0]
-        target_outputs[trial_time:, :, 1] = value < self.threshold
-        target_outputs[trial_time:, :, 2] = value > self.threshold
-        return inputs, target_outputs
+            return self._identical_batches(self._batch_size)
 
     def one_dataset(self) -> Tuple[np.ndarray, np.ndarray]:
         return self._one_dataset()
@@ -163,17 +175,6 @@ class DMTaskRandomMod(DMTask):
 
 
 class DMTask1(DMTaskRandomMod):
-    def __init__(
-        self,
-        params: Optional[DMTaskRandomModParameters] = DMTaskRandomModParameters(),
-        batch_size: int = 1,
-        mode: str = "random",
-        enable_fixation_delay: bool = False,
-    ) -> None:
-        super().__init__(
-            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
-        )
-
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
 
@@ -183,18 +184,7 @@ class DMTask1(DMTaskRandomMod):
 
 
 class DMTask2(DMTaskRandomMod):
-    def __init__(
-        self,
-        params: Optional[DMTaskRandomModParameters] = DMTaskRandomModParameters(),
-        batch_size: int = 1,
-        mode: str = "random",
-        enable_fixation_delay: bool = False,
-    ) -> None:
-        super().__init__(
-            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
-        )
-
-    def one_dataset(self, mode=0):
+    def one_dataset(self, mode=1):
         return self._one_dataset_mod(mode)
 
     @property

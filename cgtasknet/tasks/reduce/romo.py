@@ -2,7 +2,11 @@ from typing import NamedTuple, Optional, Tuple
 
 import numpy as np
 
-from cgtasknet.tasks.reduce.reduce_task import ReduceTaskCognitive, ReduceTaskParameters
+from cgtasknet.tasks.reduce.reduce_task import (
+    _generate_random_intervals,
+    ReduceTaskCognitive,
+    ReduceTaskParameters,
+)
 
 
 class RomoTaskParameters(NamedTuple):
@@ -42,7 +46,7 @@ class RomoTask(ReduceTaskCognitive):
         batch_size: int = 1,
         mode: str = "random",
         enable_fixation_delay: bool = False,
-        uniq_batch: bool = True,
+        uniq_batch: bool = False,
     ) -> None:
         """
         Initialize the model .
@@ -55,10 +59,15 @@ class RomoTask(ReduceTaskCognitive):
 
         if mode == "value" and (params.value[0] is None or params.value is None):
             raise ValueError("params[values][0]([1]) is None")
-        super().__init__(params, batch_size, mode, enable_fixation_delay)
+        super().__init__(
+            params=params,
+            batch_size=batch_size,
+            mode=mode,
+            enable_fixation_delay=enable_fixation_delay,
+            uniq_batch=uniq_batch,
+        )
         self._ob_size = 2
         self._act_size = 3
-        self._uniq_batch = uniq_batch
 
     def _unique_every_batch(self):
         max_length = 0
@@ -77,20 +86,20 @@ class RomoTask(ReduceTaskCognitive):
 
     def _identical_batches(self, batch_size: int = 1):
         dt = self._params.dt
-        trial_time = int(
-            np.random.uniform(
-                self._params.trial_time - self._params.negative_shift_trial_time,
-                self._params.trial_time + self._params.positive_shift_trial_time,
-            )
-            / dt
+        trial_time = _generate_random_intervals(
+            dt,
+            self._params.trial_time,
+            self._params.negative_shift_trial_time,
+            self._params.positive_shift_trial_time,
         )
-        delay = int(
-            np.random.uniform(
-                self._params.delay - self._params.negative_shift_delay_time,
-                self._params.delay + self._params.positive_shift_delay_time,
-            )
-            / dt
+
+        delay = _generate_random_intervals(
+            dt,
+            self._params.delay,
+            self._params.negative_shift_delay_time,
+            self._params.positive_shift_delay_time,
         )
+
         answer_time = int(self._params.answer_time / dt)
         if self._mode == "random":
             values_first = np.random.uniform(0, 1, size=batch_size)
@@ -123,9 +132,9 @@ class RomoTask(ReduceTaskCognitive):
             Tuple[np.ndarray, np.ndarray]: [description]
         """
         if self._uniq_batch:
-            return self._identical_batches(self._batch_size)
-        else:
             return self._unique_every_batch()
+        else:
+            return self._identical_batches(self._batch_size)
 
     def one_dataset(self):
         """
@@ -155,6 +164,7 @@ class RomoTaskRandomMod(RomoTask):
         batch_size: int = 1,
         mode: str = "random",
         enable_fixation_delay: bool = False,
+        uniq_batch: bool = False,
     ) -> None:
         """
         Initialize the model .
@@ -167,7 +177,11 @@ class RomoTaskRandomMod(RomoTask):
         """
 
         super().__init__(
-            params.romo, batch_size, mode, enable_fixation_delay=enable_fixation_delay
+            params=params.romo,
+            batch_size=batch_size,
+            mode=mode,
+            enable_fixation_delay=enable_fixation_delay,
+            uniq_batch=uniq_batch,
         )
 
         self._n_mods = params.n_mods
@@ -207,17 +221,6 @@ class RomoTaskRandomMod(RomoTask):
 
 
 class RomoTask1(RomoTaskRandomMod):
-    def __init__(
-        self,
-        params: Optional[RomoTaskRandomModParameters] = RomoTaskRandomModParameters(),
-        batch_size: int = 1,
-        mode: str = "random",
-        enable_fixation_delay: bool = False,
-    ) -> None:
-        super().__init__(
-            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
-        )
-
     def one_dataset(self, mode=0):
         return self._one_dataset_mod(mode)
 
@@ -227,17 +230,6 @@ class RomoTask1(RomoTaskRandomMod):
 
 
 class RomoTask2(RomoTaskRandomMod):
-    def __init__(
-        self,
-        params: Optional[RomoTaskRandomModParameters] = RomoTaskRandomModParameters(),
-        batch_size: int = 1,
-        mode: str = "random",
-        enable_fixation_delay: bool = False,
-    ) -> None:
-        super().__init__(
-            params, batch_size, mode, enable_fixation_delay=enable_fixation_delay
-        )
-
     def one_dataset(self, mode=1):
         return self._one_dataset_mod(mode)
 

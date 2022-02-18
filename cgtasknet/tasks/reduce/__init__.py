@@ -11,7 +11,7 @@ from .ctxdm import *
 from .dm import *
 from .multy import *
 from .romo import *
-from .reduce_task import *
+from .reduce_task import ReduceTaskCognitive, ReduceTaskParameters
 
 __all__ = [
     "ReduceTaskParameters",
