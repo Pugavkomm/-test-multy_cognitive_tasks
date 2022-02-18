@@ -2,11 +2,10 @@ from typing import NamedTuple, Optional, Tuple, Union
 
 import numpy as np
 
-from cgtasknet.tasks.reduce.dm import DMTask, DMTaskParameters
+from cgtasknet.tasks.reduce.dm import DMTaskParameters
 from cgtasknet.tasks.reduce.reduce_task import (
     _generate_random_intervals,
     ReduceTaskCognitive,
-    ReduceTaskParameters,
 )
 
 

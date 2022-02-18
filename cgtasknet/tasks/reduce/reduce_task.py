@@ -3,16 +3,25 @@ from random import uniform
 from typing import Any, List, NamedTuple, Tuple, Type
 
 import numpy as np
+from random import SystemRandom
+
+hard_random = SystemRandom()
 
 
 def _generate_random_intervals(
     dt: float, average: float, left_shift: float, right_shift: float
 ):
-    return round(uniform(average - left_shift, average + right_shift) / dt)
+    start = average - left_shift
+    stop = average + right_shift
+    return round(hard_random.uniform(start, stop) / dt)
 
 
-def _parallel_concatenate_batches(
-    l_inputs, l_outputs, max_length, enable_fixation_delay, batch_size
+def _concatenate_batches_external(
+    l_inputs: List[np.ndarray],
+    l_outputs: List[np.ndarray],
+    max_length: int,
+    batch_size: int,
+    enable_fixation_delay: bool,
 ):
     for i in range(batch_size):
         inputs_bufer = np.zeros((max_length, *l_inputs[0].shape[1:3]))
@@ -26,18 +35,7 @@ def _parallel_concatenate_batches(
         l_inputs[i] = inputs_bufer
         l_outputs[i] = outputs_bufer
 
-
-def _concatenate_batches_external(
-    l_intputs: List[np.ndarray],
-    l_outputs: List[np.ndarray],
-    max_length: int,
-    batch_size: int,
-    enable_fixation_delay: bool,
-):
-    _parallel_concatenate_batches(
-        l_intputs, l_outputs, max_length, enable_fixation_delay, batch_size
-    )
-    inputs_plus_rule = np.concatenate(l_intputs, axis=1)
+    inputs_plus_rule = np.concatenate(l_inputs, axis=1)
     outputs = np.concatenate(l_outputs, axis=1)
     return inputs_plus_rule, outputs
 
