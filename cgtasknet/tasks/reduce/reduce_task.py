@@ -1,11 +1,26 @@
 from abc import ABC, abstractmethod
-from typing import List, NamedTuple, Tuple, Type
+from random import SystemRandom
+from typing import Any, List, NamedTuple, Tuple, Type
 
 import numpy as np
 
+hard_random = SystemRandom()
 
-def _parallel_concatenate_batches(
-    l_inputs, l_outputs, max_length, enable_fixation_delay, batch_size
+
+def _generate_random_intervals(
+    dt: float, average: float, left_shift: float, right_shift: float
+):
+    start = average - left_shift
+    stop = average + right_shift
+    return round(hard_random.uniform(start, stop) / dt)
+
+
+def _concatenate_batches_external(
+    l_inputs: List[np.ndarray],
+    l_outputs: List[np.ndarray],
+    max_length: int,
+    batch_size: int,
+    enable_fixation_delay: bool,
 ):
     for i in range(batch_size):
         inputs_bufer = np.zeros((max_length, *l_inputs[0].shape[1:3]))
@@ -19,18 +34,7 @@ def _parallel_concatenate_batches(
         l_inputs[i] = inputs_bufer
         l_outputs[i] = outputs_bufer
 
-
-def _concatenate_batches_external(
-    l_intputs: List[np.ndarray],
-    l_outputs: List[np.ndarray],
-    max_length: int,
-    batch_size: int,
-    enable_fixation_delay: bool,
-):
-    _parallel_concatenate_batches(
-        l_intputs, l_outputs, max_length, enable_fixation_delay, batch_size
-    )
-    inputs_plus_rule = np.concatenate(l_intputs, axis=1)
+    inputs_plus_rule = np.concatenate(l_inputs, axis=1)
     outputs = np.concatenate(l_outputs, axis=1)
     return inputs_plus_rule, outputs
 
@@ -54,10 +58,11 @@ class ReduceTaskCognitive(ABC):
 
     def __init__(
         self,
-        params: ReduceTaskParameters,
+        params: Any,
         batch_size: int,
         mode: str,
         enable_fixation_delay: bool = False,
+        uniq_batch: bool = False,
     ) -> None:
         """
         Initialize the instance .
@@ -73,6 +78,7 @@ class ReduceTaskCognitive(ABC):
         self._act_size = 0
         self._mode = mode
         self._enable_fixation_delay = enable_fixation_delay
+        self._uniq_batch = uniq_batch
 
     @abstractmethod
     def one_dataset(self) -> Type[tuple]:
@@ -117,10 +123,26 @@ class ReduceTaskCognitive(ABC):
 
         return multy_inputs, multy_outputs
 
-    # def set_param(self, name: str, value: int):
-    #    if name not in self._params:
-    #        raise IndexError(f"{name} is not the parameter")
-    #    self._params[name] = value
+    @abstractmethod
+    def _identical_batches(self, batch_size: int = 1):
+        r"""
+        _description_
+        """
+
+    def _unique_every_batch(self):
+        max_length = 0
+        l_intputs = []
+        l_outputs = []
+        for _ in range(self._batch_size):
+            inputs, outputs = self._identical_batches(batch_size=1)
+            l_intputs.append(inputs)
+            l_outputs.append(outputs)
+            max_length = max(max_length, inputs.shape[0])
+
+        inputs, target_outputs = self._concatenate_batches(
+            l_intputs, l_outputs, max_length
+        )
+        return inputs, target_outputs
 
     def _concatenate_batches(
         self, l_intputs: List[np.ndarray], l_outputs: List[np.ndarray], max_length: int
