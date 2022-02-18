@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from random import uniform
+from random import SystemRandom
 from typing import Any, List, NamedTuple, Tuple, Type
 
 import numpy as np
-from random import SystemRandom
 
 hard_random = SystemRandom()
 
