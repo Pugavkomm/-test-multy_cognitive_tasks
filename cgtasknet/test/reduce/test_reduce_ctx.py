@@ -49,7 +49,7 @@ def test_ctx_2_def_params_context():
 def test_ctx_value_mode():
     def_params = CtxDMTaskParameters(value=(1, 0), context=1)
     task = CtxDMTask(params=def_params, batch_size=100, mode="value")
-    inputs, outputs = task.dataset(1)
+    inputs, _ = task.dataset(1)
     for i in range(100):
         assert inputs[0, i, 0] == 1
         assert inputs[0, i, 1] == 1
