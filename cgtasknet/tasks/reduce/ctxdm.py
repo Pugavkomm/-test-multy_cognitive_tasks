@@ -116,12 +116,12 @@ class CtxDMTask(ReduceTaskCognitive):
             (trial_time + answer_time, batch_size, self._act_size)
         )
         target_outputs[:, :, 0] = inputs[:, :, 0]
-        target_outputs[:, :, 1] = (value_1 < self._threshold) * (1 - contexts) + (
-            value_2 < self._threshold
-        ) * contexts
-        target_outputs[:, :, 2] = (value_1 > self._threshold) * (1 - contexts) + (
-            value_2 > self._threshold
-        ) * contexts
+        target_outputs[trial_time:, :, 1] = (value_1 < self._threshold) * (
+            1 - contexts
+        ) + (value_2 < self._threshold) * contexts
+        target_outputs[trial_time:, :, 2] = (value_1 > self._threshold) * (
+            1 - contexts
+        ) + (value_2 > self._threshold) * contexts
         if self._get_context:
             self._contexts = contexts
         return inputs, target_outputs
