@@ -48,7 +48,8 @@ class CtxDMTask(ReduceTaskCognitive):
         """
 
         if mode == "value" and (
-            params.value[0] is None or params.value[1] is None or params.context is None
+            (params.value[0] is None or params.value[1] is None)
+            or params.context is None
         ):
             raise ValueError("params[value] is None")
         if params.context is not None:
@@ -90,7 +91,7 @@ class CtxDMTask(ReduceTaskCognitive):
             value_2 = np.ones(batch_size) * self._params.value[1]
         else:
             raise ValueError(
-                f"mode={self._mode}, but you can use only ramdom and value modes"
+                f"mode={self._mode}, but you can use only random and value modes"
             )
         if self._params.context is None:
             contexts = np.random.randint(0, 2, size=batch_size)  # generate two contexts
@@ -198,7 +199,7 @@ class CtxDM1(CtxDMTask):
         uniq_batch: bool = False,
         threshold: float = 0.5,
     ):
-        params = CtxDMTaskParameters(dm=params.dm, context=0)
+        params = CtxDMTaskParameters(dm=params.dm, context=0, value=params.value)
         super().__init__(
             params, batch_size, mode, enable_fixation_delay, uniq_batch, threshold
         )
@@ -234,7 +235,7 @@ class CtxDM2(CtxDMTask):
         uniq_batch: bool = False,
         threshold: float = 0.5,
     ):
-        params = CtxDMTaskParameters(dm=params.dm, context=1)
+        params = CtxDMTaskParameters(dm=params.dm, context=1, value=params.value)
         super().__init__(
             params, batch_size, mode, enable_fixation_delay, uniq_batch, threshold
         )
