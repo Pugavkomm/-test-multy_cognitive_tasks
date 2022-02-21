@@ -1,3 +1,5 @@
+import torch
+
 from cgtasknet.tasks.reduce import (
     DMTaskRandomModParameters,
     MultyReduceTasks,
@@ -84,3 +86,25 @@ def test_shape_for_two_inputs_of_mods():
     assert outputs.shape[0] == inputs.shape[0]
     assert outputs.shape[1] == 20
     assert outputs.shape[2] == 3
+
+
+def test_run_select_task():
+    batch_size = 1
+    task_list = [
+        "DMTask1",
+        "DMTask2",
+    ]
+    task = MultyReduceTasks(
+        tasks=task_list,
+        batch_size=batch_size,
+        task_number=0,
+        enable_fixation_delay=True,
+    )
+    inputs, _ = task.dataset(1)
+    assert inputs[0, 0, 3] == 1
+    assert inputs[0, 0, 4] == 0
+
+    task.task_number = 1
+    inputs, _ = task.dataset(1)
+    assert inputs[0, 0, 3] == 0
+    assert inputs[0, 0, 4] == 1
