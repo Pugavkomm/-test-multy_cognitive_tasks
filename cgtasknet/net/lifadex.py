@@ -47,7 +47,7 @@ class SNNlifadex(torch.nn.Module):
         outputs = self.exp_f(outputs)
 
         if self.return_spiking and self.save_states:
-            return outputs, states, [s.lif_adex.s for s in states]
+            return outputs, states, [s.z for s in states]
         else:
             return outputs, states
 
