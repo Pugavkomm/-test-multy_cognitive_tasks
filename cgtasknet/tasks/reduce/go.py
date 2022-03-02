@@ -205,6 +205,7 @@ class GoTaskRandomMod(GoTask):
         inputs[:, :, 0] = temp[:, :, 0]
         inputs[:, :, 1 + mod] = temp[:, :, 1]
         target_outputs = np.zeros((t, self._batch_size, self._act_size))
+        target_outputs[:, :, 0] = inputs[:, :, 0]
         target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
         return inputs, target_outputs
 
@@ -236,7 +237,7 @@ class GoRtTaskRandomMod(GoRtTask):
         self._ob_size += self._n_mods - 1
         self._act_size += self._n_mods - 1
 
-    def _one_dataset_mod(self, mode: int) -> Tuple[np.ndarray, np.ndarray]:
+    def _one_dataset_mod(self, mod: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Generate a single dataset .
 
@@ -247,15 +248,16 @@ class GoRtTaskRandomMod(GoRtTask):
         t = temp.shape[0]
         inputs = np.zeros((t, self._batch_size, self._ob_size))
         inputs[:, :, 0] = temp[:, :, 0]
-        inputs[:, :, 1 + mode] = temp[:, :, 1]
+        inputs[:, :, 1 + mod] = temp[:, :, 1]
         target_outputs = np.zeros((t, self._batch_size, self._act_size))
-        target_outputs[:, :, 1 + mode] = temp_outputs[:, :, 1]
+        target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
+        target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
         return inputs, target_outputs
 
-    def one_dataset(self, mode: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
-        if mode is None:
-            mode = np.random.randint(0, self._n_mods)
-        return self._one_dataset_mod(mode)
+    def one_dataset(self, mod: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+        if mod is None:
+            mod = np.random.randint(0, self._n_mods)
+        return self._one_dataset_mod(mod)
 
     @property
     def name(self) -> str:
@@ -293,6 +295,7 @@ class GoDlTaskRandomMod(GoDlTask):
         inputs[:, :, 0] = temp[:, :, 0]
         inputs[:, :, 1 + mod] = temp[:, :, 1]
         target_outputs = np.zeros((t, self._batch_size, self._act_size))
+        target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
         target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
         return inputs, target_outputs
 
