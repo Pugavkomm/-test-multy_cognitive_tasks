@@ -45,6 +45,12 @@ test_size_mylty_task()
 def test_run_mylty_task():
     batch_size = 20
     task_list = [
+        "GoTask1",
+        "GoTask2",
+        "GoRtTask1",
+        "GoRtTask2",
+        "GoDlTask1",
+        "GoDlTask2",
         "DMTask",
         "RomoTask",
         "DMTask1",
