@@ -329,11 +329,11 @@ class GoRtTask2(GoRtTaskRandomMod):
         return self._one_dataset_mod(mod)
 
 
-class GoDlTask1(GoRtTaskRandomMod):
+class GoDlTask1(GoDlTaskRandomMod):
     def one_dataset(self, mod=0) -> Tuple[np.ndarray, np.ndarray]:
         return self._one_dataset_mod(mod)
 
 
-class GoDlTask2(GoRtTaskRandomMod):
+class GoDlTask2(GoDlTaskRandomMod):
     def one_dataset(self, mod=1) -> Tuple[np.ndarray, np.ndarray]:
         return self._one_dataset_mod(mod)
