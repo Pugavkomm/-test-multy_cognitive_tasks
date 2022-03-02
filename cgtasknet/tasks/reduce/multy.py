@@ -4,6 +4,14 @@ import numpy as np
 
 from cgtasknet.tasks.reduce.ctxdm import CtxDM1, CtxDM2, CtxDMTask
 from cgtasknet.tasks.reduce.dm import DMTask1, DMTask2, DMTaskRandomMod
+from cgtasknet.tasks.reduce.go import (
+    GoDlTask1,
+    GoDlTask2,
+    GoRtTask1,
+    GoRtTask2,
+    GoTask1,
+    GoTask2,
+)
 from cgtasknet.tasks.reduce.reduce_task import ReduceTaskCognitive
 from cgtasknet.tasks.reduce.romo import RomoTask1, RomoTask2, RomoTaskRandomMod
 
@@ -30,6 +38,12 @@ class MultyReduceTasks(ReduceTaskCognitive):
         ("DMTask2", DMTask2),
         ("CtxDMTask1", CtxDM1),
         ("CtxDMTask2", CtxDM2),
+        ("GoTask1", GoTask1),
+        ("GoTask2", GoTask2),
+        ("GoRtTask1", GoRtTask1),
+        ("GoRtTask2", GoRtTask2),
+        ("GoDlTask1", GoDlTask1),
+        ("GoDlTask2", GoDlTask2),
     ]
     task_list.sort()
     TASKSDICT = dict(task_list)
@@ -56,22 +70,43 @@ class MultyReduceTasks(ReduceTaskCognitive):
         self._delay_between = delay_between
         self._initial_tasks_list = dict()
         self._enable_fixation_delay = enable_fixation_delay
+        tasks_without_mode = [
+            "GoTask1",
+            "GoTask2",
+            "GoRtTask1",
+            "GoRtTask2",
+            "GoDlTask1",
+            "GoDlTask2",
+        ]
         if isinstance(tasks, list):
             for task_name in tasks:
-                self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
-                    batch_size=1,
-                    mode=mode,
-                    enable_fixation_delay=enable_fixation_delay,
-                )
+                if task_name not in tasks_without_mode:
+                    self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
+                        batch_size=1,
+                        mode=mode,
+                        enable_fixation_delay=enable_fixation_delay,
+                    )
+                else:
+                    self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
+                        batch_size=1,
+                        enable_fixation_delay=enable_fixation_delay,
+                    )
         if isinstance(tasks, dict):
             for task_name in tasks:
-                self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
-                    params=tasks[task_name],
-                    batch_size=1,
-                    mode=mode,
-                    enable_fixation_delay=enable_fixation_delay,
-                )
+                if task_name not in tasks_without_mode:
 
+                    self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
+                        params=tasks[task_name],
+                        batch_size=1,
+                        mode=mode,
+                        enable_fixation_delay=enable_fixation_delay,
+                    )
+                else:
+                    self._initial_tasks_list[task_name] = self.TASKSDICT[task_name](
+                        params=tasks[task_name],
+                        batch_size=1,
+                        enable_fixation_delay=enable_fixation_delay,
+                    )
         self._tasks = tasks
         self._ob_size = 1 + number_of_inputs + len(tasks)
         self._act_size = 3

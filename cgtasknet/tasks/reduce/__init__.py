@@ -1,5 +1,5 @@
 """
-In reduced problems, we use two modes, which
+In reduced tasks, we use two modes, which
 are quoted in two different directions. Some
 of the tasks can only be transferred to one mod.
 The contextual task is transferred to two modes at once.
@@ -9,11 +9,49 @@ from __future__ import annotations
 
 from .ctxdm import *
 from .dm import *
+from .go import (
+    GoDlTask,
+    GoDlTask1,
+    GoDlTask2,
+    GoDlTaskParameters,
+    GoDlTaskRandomMod,
+    GoDlTaskRandomModParameters,
+    GoRtTask,
+    GoRtTask1,
+    GoRtTask2,
+    GoRtTaskParameters,
+    GoRtTaskRandomMod,
+    GoRtTaskRandomModParameters,
+    GoTask,
+    GoTask1,
+    GoTask2,
+    GoTaskParameters,
+    GoTaskRandomMod,
+    GoTaskRandomModParameters,
+)
 from .multy import *
-from .romo import *
 from .reduce_task import ReduceTaskCognitive, ReduceTaskParameters
+from .romo import *
 
 __all__ = [
+    "GoTask",
+    "GoTask1",
+    "GoTask2",
+    "GoTaskParameters",
+    "GoTaskRandomMod",
+    "GoTaskRandomModParameters",
+    "GoRtTask",
+    "GoRtTask1",
+    "GoRtTask2",
+    "GoRtTaskParameters",
+    "GoRtTaskRandomMod",
+    "GoRtTaskRandomModParameters",
+    "GoDlTask",
+    "GoDlTask1",
+    "GoDlTask2",
+    "GoDlTaskParameters",
+    "GoDlTaskRandomMod",
+    "GoDlTaskRandomModParameters",
     "ReduceTaskParameters",
     "ReduceTaskCognitive",
     "DMTaskParameters",
