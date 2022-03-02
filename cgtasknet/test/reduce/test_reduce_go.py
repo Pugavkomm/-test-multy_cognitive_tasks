@@ -1,5 +1,7 @@
 from cgtasknet.tasks.reduce.go import (
     GoDlTask,
+    GoDlTask1,
+    GoDlTask2,
     GoDlTaskParameters,
     GoDlTaskRandomMod,
     GoDlTaskRandomModParameters,
@@ -266,12 +268,12 @@ def test_gort_2():
 
 
 def test_godl_1():
-    params = GoRtTaskRandomModParameters()
-    task = GoRtTask1(params=params)
+    params = GoDlTaskRandomModParameters()
+    task = GoDlTask1(params=params)
     task.dataset()
 
 
 def test_godl_2():
-    params = GoTaskRandomModParameters()
-    task = GoRtTask2(params=params)
+    params = GoDlTaskRandomModParameters()
+    task = GoDlTask2(params=params)
     task.dataset()
