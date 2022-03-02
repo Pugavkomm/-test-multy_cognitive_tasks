@@ -4,9 +4,13 @@ from cgtasknet.tasks.reduce.go import (
     GoDlTaskRandomMod,
     GoDlTaskRandomModParameters,
     GoRtTask,
+    GoRtTask1,
+    GoRtTask2,
     GoRtTaskRandomMod,
     GoRtTaskRandomModParameters,
     GoTask,
+    GoTask1,
+    GoTask2,
     GoTaskParameters,
     GoTaskRandomMod,
     GoTaskRandomModParameters,
@@ -235,3 +239,39 @@ def test_godl_random_mode_n_mods_2():
     inputs, outputs = task.dataset()
     assert inputs.shape[-1] == 3
     assert outputs.shape[-1] == 3
+
+
+def test_go_1():
+    params = GoTaskRandomModParameters()
+    task = GoTask1(params=params)
+    task.dataset()
+
+
+def test_go_2():
+    params = GoTaskRandomModParameters()
+    task = GoTask2(params=params)
+    task.dataset()
+
+
+def test_gort_1():
+    params = GoRtTaskRandomModParameters()
+    task = GoRtTask1(params=params)
+    task.dataset()
+
+
+def test_gort_2():
+    params = GoTaskRandomModParameters()
+    task = GoRtTask2(params=params)
+    task.dataset()
+
+
+def test_godl_1():
+    params = GoRtTaskRandomModParameters()
+    task = GoRtTask1(params=params)
+    task.dataset()
+
+
+def test_godl_2():
+    params = GoTaskRandomModParameters()
+    task = GoRtTask2(params=params)
+    task.dataset()
