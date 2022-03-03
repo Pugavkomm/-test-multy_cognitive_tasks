@@ -27,7 +27,7 @@ def _generate_values(
     batch_size = int(batch_size)
     value = int(value)
     if mode not in modes:
-        ValueError(f"Mode {mode} is not exist, you can use only modes: {modes}")
+        raise ValueError(f"Mode {mode} is not exist, you can use only modes: {modes}")
     if mode == "random":
         return distribution(0, value, size=batch_size)
     elif mode == "value":
