@@ -25,13 +25,13 @@ def _generate_values(
 ) -> np.ndarray:
     mode = str(mode)
     batch_size = int(batch_size)
-    value = int(value)
+    value = float(value)
     if mode not in modes:
         raise ValueError(f"Mode {mode} is not exist, you can use only modes: {modes}")
     if mode == "random":
         return distribution(0, value, size=batch_size)
     elif mode == "value":
-        return np.ones(batch_size) * value
+        return np.ones(batch_size, dtype=np.float32) * value
 
 
 def _concatenate_batches_external(

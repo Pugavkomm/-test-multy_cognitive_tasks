@@ -8,6 +8,7 @@ from cgtasknet.tasks.reduce.go import (
     GoRtTask,
     GoRtTask1,
     GoRtTask2,
+    GoRtTaskParameters,
     GoRtTaskRandomMod,
     GoRtTaskRandomModParameters,
     GoTask,
@@ -136,7 +137,7 @@ def test_go_task_values_batch_size_dataset():
 def test_gort_task_values_dataset():
     inputs, outputs = GoRtTask(batch_size=1, mode="value").dataset()
     assert inputs[0, 0, 0] == 1
-    assert inputs[-1, 0, 0] == 0
+    assert inputs[-1, 0, 0] == 1
     assert inputs[0, 0, 1] == 0
     assert inputs[-1, 0, 1] == 1
 
@@ -148,21 +149,24 @@ def test_gort_task_values_dataset():
 
 def test_gort_task_values_batch_size_dataset():
     batch_size = 100
-    inputs, outputs = GoRtTask(batch_size=batch_size, mode="value").dataset()
+    params = GoRtTaskParameters(value=0.5)
+    inputs, outputs = GoRtTask(
+        params=params, batch_size=batch_size, mode="value"
+    ).dataset()
     for i in range(batch_size):
         assert inputs[0, i, 0] == 1
-        assert inputs[-1, i, 0] == 0
+        assert inputs[-1, i, 0] == 1
         assert inputs[0, i, 1] == 0
-        assert inputs[-1, i, 1] == 1
+        assert inputs[-1, i, 1] == 0.5
 
         assert outputs[0, i, 0] == 1
         assert outputs[-1, i, 0] == 0
         assert outputs[0, i, 1] == 0
-        assert outputs[-1, i, 1] == 1
+        assert outputs[-1, i, 1] == 0.5
 
 
 def test_godl_task_values_dataset():
-    inputs, outputs = GoDlTask(batch_size=1, mode="value").dataset()
+    inputs, outputs = GoDlTask(batch_size=10, mode="value").dataset()
     assert inputs[0, 0, 0] == 1
     assert inputs[-1, 0, 0] == 0
     assert inputs[0, 0, 1] == 1

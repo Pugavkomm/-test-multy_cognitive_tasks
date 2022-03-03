@@ -115,9 +115,9 @@ class GoRtTask(GoTask):
             (trial_time + answer_time, batch_size, self._act_size)
         )
         values = _generate_values(self._mode, batch_size, self._params.value)
-        inputs[:trial_time, :, 0] = 1
+        inputs[:, :, 0] = 1
         inputs[trial_time:, :, 1] = values
-        target_outputs[:, :, 0] = inputs[:, :, 0]
+        target_outputs[:trial_time, :, 0] = 1
         target_outputs[trial_time:, :, 1] = values
 
         return inputs, target_outputs
@@ -170,7 +170,6 @@ class GoDlTask(GoTask):
             (trial_time + answer_time + delay_time, batch_size, self._act_size)
         )
         values = _generate_values(self._mode, batch_size, self._params.go.value)
-
         inputs[: trial_time + delay_time, :, 0] = 1
         inputs[:trial_time, :, 1] = values
         target_outputs[:, :, 0] = inputs[:, :, 0]
@@ -215,7 +214,7 @@ class GoTaskRandomMod(GoTask):
         inputs[:, :, 0] = temp[:, :, 0]
         inputs[:, :, 1 + mod] = temp[:, :, 1]
         target_outputs = np.zeros((t, self._batch_size, self._act_size))
-        target_outputs[:, :, 0] = inputs[:, :, 0]
+        target_outputs[:, :, 0] = temp_outputs[:, :, 0]
         target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
         return inputs, target_outputs
 
@@ -262,7 +261,7 @@ class GoRtTaskRandomMod(GoRtTask):
         inputs[:, :, 0] = temp[:, :, 0]
         inputs[:, :, 1 + mod] = temp[:, :, 1]
         target_outputs = np.zeros((t, self._batch_size, self._act_size))
-        target_outputs[:, :, 0] = inputs[:, :, 0]
+        target_outputs[:, :, 0] = temp_outputs[:, :, 0]
         target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
         return inputs, target_outputs
 
@@ -281,7 +280,7 @@ class GoDlTaskRandomMod(GoDlTask):
         self,
         params: GoDlTaskRandomModParameters = GoDlTaskRandomModParameters(),
         batch_size: int = 1,
-        mode: str = "value",
+        mode: str = "random",
         enable_fixation_delay: bool = False,
         uniq_batch: bool = False,
     ):
@@ -309,7 +308,7 @@ class GoDlTaskRandomMod(GoDlTask):
         inputs[:, :, 0] = temp[:, :, 0]
         inputs[:, :, 1 + mod] = temp[:, :, 1]
         target_outputs = np.zeros((t, self._batch_size, self._act_size))
-        target_outputs[:, :, 0] = inputs[:, :, 0]
+        target_outputs[:, :, 0] = temp_outputs[:, :, 0]
         target_outputs[:, :, 1 + mod] = temp_outputs[:, :, 1]
         return inputs, target_outputs
 
