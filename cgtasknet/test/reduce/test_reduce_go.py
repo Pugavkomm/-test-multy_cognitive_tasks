@@ -106,7 +106,7 @@ def test_godl_times_run_some_dataset():
 
 
 def test_go_task_values_dataset():
-    inputs, outputs = GoTask(batch_size=1).dataset()
+    inputs, outputs = GoTask(batch_size=1, mode="value").dataset()
     assert inputs[0, 0, 0] == 1
     assert inputs[-1, 0, 0] == 0
     assert inputs[0, 0, 1] == 1
@@ -120,7 +120,7 @@ def test_go_task_values_dataset():
 
 def test_go_task_values_batch_size_dataset():
     batch_size = 100
-    inputs, outputs = GoTask(batch_size=batch_size).dataset()
+    inputs, outputs = GoTask(batch_size=batch_size, mode="value").dataset()
     for i in range(batch_size):
         assert inputs[0, i, 0] == 1
         assert inputs[-1, i, 0] == 0
@@ -134,7 +134,7 @@ def test_go_task_values_batch_size_dataset():
 
 
 def test_gort_task_values_dataset():
-    inputs, outputs = GoRtTask(batch_size=1).dataset()
+    inputs, outputs = GoRtTask(batch_size=1, mode="value").dataset()
     assert inputs[0, 0, 0] == 1
     assert inputs[-1, 0, 0] == 0
     assert inputs[0, 0, 1] == 0
@@ -148,7 +148,7 @@ def test_gort_task_values_dataset():
 
 def test_gort_task_values_batch_size_dataset():
     batch_size = 100
-    inputs, outputs = GoRtTask(batch_size=batch_size).dataset()
+    inputs, outputs = GoRtTask(batch_size=batch_size, mode="value").dataset()
     for i in range(batch_size):
         assert inputs[0, i, 0] == 1
         assert inputs[-1, i, 0] == 0
@@ -162,7 +162,7 @@ def test_gort_task_values_batch_size_dataset():
 
 
 def test_godl_task_values_dataset():
-    inputs, outputs = GoDlTask(batch_size=1).dataset()
+    inputs, outputs = GoDlTask(batch_size=1, mode="value").dataset()
     assert inputs[0, 0, 0] == 1
     assert inputs[-1, 0, 0] == 0
     assert inputs[0, 0, 1] == 1
@@ -176,7 +176,7 @@ def test_godl_task_values_dataset():
 
 def test_godl_task_values_batch_size_dataset():
     batch_size = 100
-    inputs, outputs = GoDlTask(batch_size=batch_size).dataset()
+    inputs, outputs = GoDlTask(batch_size=batch_size, mode="value").dataset()
     for i in range(batch_size):
         assert inputs[0, i, 0] == 1
         assert inputs[-1, i, 0] == 0

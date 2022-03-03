@@ -30,7 +30,7 @@ from .go import (
     GoTaskRandomModParameters,
 )
 from .multy import *
-from .reduce_task import ReduceTaskCognitive, ReduceTaskParameters
+from .reduce_task import ReduceTaskCognitive, ReduceTaskParameters, _generate_values
 from .romo import *
 
 __all__ = [
@@ -72,4 +72,5 @@ __all__ = [
     "CtxDM1",
     "CtxDM2",
     "MultyReduceTasks",
+    "_generate_values",
 ]

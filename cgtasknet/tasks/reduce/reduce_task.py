@@ -6,6 +6,8 @@ import numpy as np
 
 hard_random = SystemRandom()
 
+modes = ("random", "value")
+
 
 def _generate_random_intervals(
     dt: float, average: float, left_shift: float, right_shift: float
@@ -13,6 +15,23 @@ def _generate_random_intervals(
     start = average - left_shift
     stop = average + right_shift
     return round(hard_random.uniform(start, stop) / dt)
+
+
+def _generate_values(
+    mode: str,
+    batch_size: int,
+    value: float,
+    distribution=np.random.uniform,
+) -> np.ndarray:
+    mode = str(mode)
+    batch_size = int(batch_size)
+    value = int(value)
+    if mode not in modes:
+        raise ValueError(f"Mode {mode} is not exist, you can use only modes: {modes}")
+    if mode == "random":
+        return distribution(0, value, size=batch_size)
+    elif mode == "value":
+        return np.ones(batch_size) * value
 
 
 def _concatenate_batches_external(

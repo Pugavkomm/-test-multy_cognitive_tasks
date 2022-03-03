@@ -6,6 +6,7 @@ from cgtasknet.tasks.reduce.reduce_task import (
     _generate_random_intervals,
     ReduceTaskCognitive,
     ReduceTaskParameters,
+    _generate_values,
 )
 
 
@@ -13,7 +14,7 @@ class GoTaskParameters(NamedTuple):
     dt: float = ReduceTaskParameters().dt
     trial_time: float = 0.75
     answer_time: float = ReduceTaskParameters().answer_time
-    value: float = ReduceTaskParameters().value
+    value: float = 1
 
     # task_type: str = "Go"  # Go, Rt, Dl
     negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
@@ -48,13 +49,14 @@ class GoTask(ReduceTaskCognitive):
         self,
         params: GoTaskParameters = GoTaskParameters(),
         batch_size: int = 1,
+        mode: str = "random",
         enable_fixation_delay: bool = False,
         uniq_batch: bool = False,
     ) -> None:
         super().__init__(
             params=params,
             batch_size=batch_size,
-            mode="random",
+            mode=mode,
             enable_fixation_delay=enable_fixation_delay,
             uniq_batch=uniq_batch,
         )
@@ -75,8 +77,9 @@ class GoTask(ReduceTaskCognitive):
         target_outputs = np.zeros(
             (trial_time + answer_time, batch_size, self._act_size)
         )
+        values = _generate_values(self._mode, batch_size, self._params.value)
         inputs[:trial_time, :, 0] = 1
-        inputs[:, :, 1] = 1
+        inputs[:, :, 1] = values
         target_outputs[:, :, 0] = inputs[:, :, 0]
         target_outputs[trial_time:, :, 1] = 1
 
@@ -111,8 +114,9 @@ class GoRtTask(GoTask):
         target_outputs = np.zeros(
             (trial_time + answer_time, batch_size, self._act_size)
         )
+        values = _generate_values(self._mode, batch_size, self._params.value)
         inputs[:trial_time, :, 0] = 1
-        inputs[trial_time:, :, 1] = 1
+        inputs[trial_time:, :, 1] = values
         target_outputs[:, :, 0] = inputs[:, :, 0]
         target_outputs[trial_time:, :, 1] = 1
 
@@ -128,12 +132,14 @@ class GoDlTask(GoTask):
         self,
         params: Union[GoDlTaskParameters, GoRtTaskParameters] = GoDlTaskParameters(),
         batch_size: int = 1,
+        mode: str = "random",
         enable_fixation_delay: bool = False,
         uniq_batch: bool = False,
     ) -> None:
         super().__init__(
             params=params,
             batch_size=batch_size,
+            mode=mode,
             enable_fixation_delay=enable_fixation_delay,
             uniq_batch=uniq_batch,
         )
@@ -163,8 +169,10 @@ class GoDlTask(GoTask):
         target_outputs = np.zeros(
             (trial_time + answer_time + delay_time, batch_size, self._act_size)
         )
+        values = _generate_values(self._mode, batch_size, self._params.go.value)
+
         inputs[: trial_time + delay_time, :, 0] = 1
-        inputs[:trial_time, :, 1] = 1
+        inputs[:trial_time, :, 1] = values
         target_outputs[:, :, 0] = inputs[:, :, 0]
         target_outputs[trial_time + delay_time :, :, 1] = 1
         return inputs, target_outputs
@@ -179,12 +187,14 @@ class GoTaskRandomMod(GoTask):
         self,
         params: GoTaskRandomModParameters = GoTaskRandomModParameters(),
         batch_size: int = 1,
+        mode: str = "random",
         enable_fixation_delay: bool = False,
         uniq_batch: bool = False,
     ):
         super().__init__(
             params=params.go,
             batch_size=batch_size,
+            mode=mode,
             enable_fixation_delay=enable_fixation_delay,
             uniq_batch=uniq_batch,
         )
@@ -224,12 +234,14 @@ class GoRtTaskRandomMod(GoRtTask):
         self,
         params: GoTaskRandomModParameters = GoTaskRandomModParameters(),
         batch_size: int = 1,
+        mode: str = "random",
         enable_fixation_delay: bool = False,
         uniq_batch: bool = False,
     ):
         super().__init__(
             params=params.go,
             batch_size=batch_size,
+            mode=mode,
             enable_fixation_delay=enable_fixation_delay,
             uniq_batch=uniq_batch,
         )
@@ -269,12 +281,14 @@ class GoDlTaskRandomMod(GoDlTask):
         self,
         params: GoDlTaskRandomModParameters = GoDlTaskRandomModParameters(),
         batch_size: int = 1,
+        mode: str = "value",
         enable_fixation_delay: bool = False,
         uniq_batch: bool = False,
     ):
         super().__init__(
             params=params.go_dl,
             batch_size=batch_size,
+            mode=mode,
             enable_fixation_delay=enable_fixation_delay,
             uniq_batch=uniq_batch,
         )
