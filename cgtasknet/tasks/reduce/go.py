@@ -81,7 +81,7 @@ class GoTask(ReduceTaskCognitive):
         inputs[:trial_time, :, 0] = 1
         inputs[:, :, 1] = values
         target_outputs[:, :, 0] = inputs[:, :, 0]
-        target_outputs[trial_time:, :, 1] = 1
+        target_outputs[trial_time:, :, 1] = values
 
         return inputs, target_outputs
 
@@ -118,7 +118,7 @@ class GoRtTask(GoTask):
         inputs[:trial_time, :, 0] = 1
         inputs[trial_time:, :, 1] = values
         target_outputs[:, :, 0] = inputs[:, :, 0]
-        target_outputs[trial_time:, :, 1] = 1
+        target_outputs[trial_time:, :, 1] = values
 
         return inputs, target_outputs
 
@@ -174,7 +174,7 @@ class GoDlTask(GoTask):
         inputs[: trial_time + delay_time, :, 0] = 1
         inputs[:trial_time, :, 1] = values
         target_outputs[:, :, 0] = inputs[:, :, 0]
-        target_outputs[trial_time + delay_time :, :, 1] = 1
+        target_outputs[trial_time + delay_time :, :, 1] = values
         return inputs, target_outputs
 
     @property
