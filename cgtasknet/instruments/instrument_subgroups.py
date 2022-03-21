@@ -28,7 +28,7 @@ class SubgroupFinder:
         outputs: list,
         target_outputs: list,
         criterion=_is_correct_output,
-    ) -> None:
+    ) -> bool:
         # s: list[s_first_trial, s_second_trial, ..., s_last_trial]
         # fixations: list[fixation_first_trial, fixation_second_trial, fixation_last_trial]
         # outputs: list[output_first_trial, output_second_trial, ..., output_last_trial]
@@ -41,7 +41,7 @@ class SubgroupFinder:
             (
                 (start_fixation, stop_fixation),
                 (start_answer, stop_answer),
-            ) = self.find_fixation_start_stop(fixations[i])
+            ) = self.find_fixation_start_stop(target_outputs[i][:, :, 0])
 
             if criterion(
                 outputs[i][start_answer:stop_answer],
@@ -59,15 +59,17 @@ class SubgroupFinder:
                     s[i][start_answer:stop_answer, :]
                 )
                 self._number_of_trials += 1
+            else:
+                return False
+            return True
 
     def find_fixation_start_stop(
         self, fixation: torch.Tensor
     ) -> Tuple[Tuple[int, int], Tuple[int, int]]:
-        fixation_indexes = torch.where(fixation == 1)
+        fixation_indexes = torch.where(fixation > 0.5)
         start_fixation = int(fixation_indexes[0][0].item())
         stop_fixation = int(fixation_indexes[0][-1].item())
-
-        non_fixation_indexes = torch.where(fixation == 0)
+        non_fixation_indexes = torch.where(fixation < 0.5)
         start_answer = int(non_fixation_indexes[0][0].item())
         stop_answer = int(non_fixation_indexes[0][-1].item())
 
