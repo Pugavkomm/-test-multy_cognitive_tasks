@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from random import SystemRandom
-from typing import Any, List, NamedTuple, Tuple, Type
+from typing import Any, Iterable, List, NamedTuple, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -20,18 +20,29 @@ def _generate_random_intervals(
 def _generate_values(
     mode: str,
     batch_size: int,
-    value: float,
+    value: Union[float, tuple, list, Iterable],
     distribution=np.random.uniform,
+    seed: Optional[int] = None,
 ) -> np.ndarray:
     mode = str(mode)
     batch_size = int(batch_size)
-    value = float(value)
+    if seed is not None:
+        np.random.seed(seed)
     if mode not in modes:
         raise ValueError(f"Mode {mode} is not exist, you can use only modes: {modes}")
+    if not (isinstance(value, int) or isinstance(value, float)):
+        if mode != "random":
+            raise ValueError
+        if not isinstance(value, Iterable):
+            raise TypeError
+    else:
+        value = float(value)
     if mode == "random":
+        if isinstance(value, Iterable):
+            return np.random.choice(value, size=batch_size)
         return distribution(0, value, size=batch_size)
     elif mode == "value":
-        return np.ones(batch_size, dtype=np.float32) * value
+        return np.ones(batch_size, dtype=np.float64) * value
 
 
 def _concatenate_batches_external(
