@@ -4,9 +4,9 @@ import numpy as np
 
 from cgtasknet.tasks.reduce.reduce_task import (
     _generate_random_intervals,
+    _generate_values,
     ReduceTaskCognitive,
     ReduceTaskParameters,
-    _generate_values,
 )
 
 
@@ -14,7 +14,7 @@ class GoTaskParameters(NamedTuple):
     dt: float = ReduceTaskParameters().dt
     trial_time: float = 0.75
     answer_time: float = ReduceTaskParameters().answer_time
-    value: float = 1
+    value: Union[float, list, tuple] = 1.0
 
     # task_type: str = "Go"  # Go, Rt, Dl
     negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time

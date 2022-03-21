@@ -1,3 +1,5 @@
+import numpy as np
+
 from cgtasknet.tasks.reduce.go import (
     GoDlTask,
     GoDlTask1,
@@ -281,3 +283,45 @@ def test_godl_2():
     params = GoDlTaskRandomModParameters()
     task = GoDlTask2(params=params)
     task.dataset()
+
+
+def test_go_run_list_values():
+    values = [0.0, 0.1]
+    check_values = []
+    params = GoTaskParameters(value=values)
+    task = GoTask(params=params)
+    test_loop_count = 1000
+    for _ in range(test_loop_count):
+        data, _ = task.dataset()
+        if data[0, 0, 1] not in check_values:
+            check_values.append(data[0, 0, 1])
+    assert len(check_values) == len(values)
+    assert np.allclose(sorted(check_values), values)
+
+
+def test_gort_run_list_values():
+    values = [0.0, 0.1, 1.1]
+    check_values = []
+    params = GoRtTaskParameters(value=values)
+    task = GoRtTask(params=params)
+    test_loop_count = 1000
+    for _ in range(test_loop_count):
+        data, _ = task.dataset()
+        if data[-1, 0, 1] not in check_values:
+            check_values.append(data[-1, 0, 1])
+    assert len(check_values) == len(values)
+    assert np.allclose(sorted(check_values), values)
+
+
+def test_godl_run_list_values():
+    values = [0.0, 0.1]
+    check_values = []
+    params = GoDlTaskParameters(GoTaskParameters(value=values))
+    task = GoDlTask(params=params)
+    test_loop_count = 1000
+    for _ in range(test_loop_count):
+        data, _ = task.dataset()
+        if data[0, 0, 1] not in check_values:
+            check_values.append(data[0, 0, 1])
+    assert len(check_values) == len(values)
+    assert np.allclose(sorted(check_values), values)
