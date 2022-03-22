@@ -21,7 +21,17 @@ class GoTaskParameters(NamedTuple):
     positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
 
 
-GoRtTaskParameters = GoTaskParameters
+class GoRtTaskParameters(NamedTuple):
+    dt: float = ReduceTaskParameters().dt
+    trial_time: float = 0.75
+    answer_time: float = ReduceTaskParameters().answer_time
+    negative_shift_answer_time: float = 0.0
+    positive_shift_answer_time: float = 0.0
+    value: Union[float, list, tuple] = 1.0
+
+    # task_type: str = "Go"  # Go, Rt, Dl
+    negative_shift_trial_time: float = ReduceTaskParameters().negative_shift_trial_time
+    positive_shift_trial_time: float = ReduceTaskParameters().positive_shift_trial_time
 
 
 class GoTaskRandomModParameters(NamedTuple):
@@ -29,7 +39,9 @@ class GoTaskRandomModParameters(NamedTuple):
     n_mods: int = 2
 
 
-GoRtTaskRandomModParameters = GoTaskRandomModParameters
+class GoRtTaskRandomModParameters(NamedTuple):
+    go_rt: GoRtTaskParameters = GoRtTaskParameters()
+    n_mods: int = 2
 
 
 class GoDlTaskParameters(NamedTuple):
@@ -101,6 +113,25 @@ class GoTask(ReduceTaskCognitive):
 
 
 class GoRtTask(GoTask):
+    def __init__(
+        self,
+        params: GoRtTaskParameters = GoRtTaskParameters(),
+        batch_size: int = 1,
+        mode: str = "random",
+        enable_fixation_delay: bool = False,
+        uniq_batch: bool = False,
+    ) -> None:
+        super().__init__(
+            params=params,
+            batch_size=batch_size,
+            mode=mode,
+            enable_fixation_delay=enable_fixation_delay,
+            uniq_batch=uniq_batch,
+        )
+
+        self._ob_size = 2
+        self._act_size = 2
+
     def _identical_batches(self, batch_size: int = 1) -> Tuple[np.ndarray, np.ndarray]:
         dt = self._params.dt
         trial_time = _generate_random_intervals(
@@ -109,7 +140,12 @@ class GoRtTask(GoTask):
             self._params.negative_shift_trial_time,
             self._params.positive_shift_trial_time,
         )
-        answer_time = round(self._params.answer_time / dt)
+        answer_time = _generate_random_intervals(
+            dt,
+            self._params.answer_time,
+            self._params.negative_shift_answer_time,
+            self._params.positive_shift_answer_time,
+        )
         inputs = np.zeros((trial_time + answer_time, batch_size, self._ob_size))
         target_outputs = np.zeros(
             (trial_time + answer_time, batch_size, self._act_size)
@@ -231,14 +267,14 @@ class GoTaskRandomMod(GoTask):
 class GoRtTaskRandomMod(GoRtTask):
     def __init__(
         self,
-        params: GoTaskRandomModParameters = GoTaskRandomModParameters(),
+        params: GoRtTaskRandomModParameters = GoRtTaskRandomModParameters(),
         batch_size: int = 1,
         mode: str = "random",
         enable_fixation_delay: bool = False,
         uniq_batch: bool = False,
     ):
         super().__init__(
-            params=params.go,
+            params=params.go_rt,
             batch_size=batch_size,
             mode=mode,
             enable_fixation_delay=enable_fixation_delay,
