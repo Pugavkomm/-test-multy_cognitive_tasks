@@ -47,7 +47,7 @@ def test_go_task_get_parameters():
 
 
 def test_gort_get_parameters():
-    def_params = GoTaskParameters()
+    def_params = GoRtTaskParameters()
     assert GoRtTask().params == def_params
     assert GoRtTask(batch_size=10).batch_size == 10
 
@@ -268,7 +268,7 @@ def test_gort_1():
 
 
 def test_gort_2():
-    params = GoTaskRandomModParameters()
+    params = GoRtTaskRandomModParameters()
     task = GoRtTask2(params=params)
     task.dataset()
 

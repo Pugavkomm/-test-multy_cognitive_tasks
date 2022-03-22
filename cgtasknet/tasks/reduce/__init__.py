@@ -7,6 +7,7 @@ The network must ignore the wrong mod.
 """
 from __future__ import annotations
 
+from build.lib.cgtasknet.tasks.reduce import GoRtTaskRandomModParameters
 from .ctxdm import *
 from .dm import *
 from .go import (
