@@ -65,8 +65,6 @@ def test_smart_all_wrong_fixations():
 
 
 def test_difficult_go_signal():
-    import matplotlib.pyplot as plt
-
     fixation_signal = torch.ones(150)
     fixation_signal[70:] = 1 - torch.tensor([*range(80)]) / 80
     fixation_signal[100:120] = torch.cos(torch.tensor([*range(20)]) * 0.05) * 0.7
@@ -86,16 +84,10 @@ def test_difficult_go_signal():
     t_fixation[70:, 0] = 0
     fixation = torch.zeros((150, 1))
     fixation[:, 0] = fixation_signal[:]
-    t_out = torch.zeros((150, 1))
+    t_out = torch.zeros((150, 1, 1))
     out = torch.zeros_like(t_out)
-    out[:, 0] = stimulus
+    out[:, 0, 0] = stimulus
     t_out[70:] = 0.6
-    plt.plot(fixation_signal)
-    plt.plot(stimulus)
-
-    plt.plot(t_fixation)
-    plt.plot(t_out)
-    plt.show()
-    cn = CorrectAnswerNetwork([], [0], 0.07)
+    cn = CorrectAnswerNetwork(None, [0], 0.2)
     result = cn.run(t_fixation, fixation, t_out, out, [0])
     assert result == 1
