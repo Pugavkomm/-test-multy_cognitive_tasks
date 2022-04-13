@@ -47,8 +47,8 @@ def _first_value(x, value, axis=0, max_v=0):
 class CorrectAnswerNetwork:
     def __init__(
         self,
-        choice_task_indexes: Iterable,
-        repeated_task_indexes: Iterable,
+        choice_task_indexes: Iterable = None,
+        repeated_task_indexes: Iterable = None,
         accuracy_repeated: float = None,
         mode: str = "mean",
     ) -> None:
