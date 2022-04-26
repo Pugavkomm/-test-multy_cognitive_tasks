@@ -5,7 +5,9 @@ from norse.torch import LIFAdExState
 def save_states(x, save_states: bool, layer, state, additional_current=None):
     if additional_current is not None:
         if additional_current.shape[0] == 1:
-            tmp_additional_current = torch.zeros((len(x), additional_current.shape[1]))
+            tmp_additional_current = torch.zeros(
+                (len(x), additional_current.shape[1])
+            ).to(additional_current.device)
             tmp_additional_current[:, :] = additional_current[:, :]
             additional_current = tmp_additional_current
     if save_states or additional_current is not None:
