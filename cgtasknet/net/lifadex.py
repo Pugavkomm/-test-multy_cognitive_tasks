@@ -37,12 +37,17 @@ class SNNlifadex(torch.nn.Module):
         self.return_spiking = return_spiking
 
     def forward(
-        self, x: torch.tensor, state: Optional[LIFAdExState] = None
+        self,
+        x: torch.tensor,
+        state: Optional[LIFAdExState] = None,
+        additional_current: Optional[torch.tensor] = None,
     ) -> Union[
         Tuple[torch.tensor, torch.tensor, List[torch.tensor]],
         Tuple[torch.tensor, torch.tensor],
     ]:
-        outputs, states = save_states(x, self.save_states, self.alif, state)
+        outputs, states = save_states(
+            x, self.save_states, self.alif, state, additional_current
+        )
 
         outputs = self.exp_f(outputs)
 
