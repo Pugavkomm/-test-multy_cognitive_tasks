@@ -23,15 +23,13 @@ def save_states(x, save_states: bool, layer, state, additional_current=None):
                     else None
                 )
             out, s = layer(x[ts : ts + 1, :, :], state=s)
+            outputs.append(out)
             if save_states:
                 states.append(s)
-                outputs.append(out)
 
-        if save_states:
-            outputs = torch.concat(outputs, axis=0)
-        else:
-            states = s
-            outputs = out
+            else:
+                states = s
+        outputs = torch.concat(outputs, axis=0)
     else:
         outputs, states = layer(x, state)
     return outputs, states
