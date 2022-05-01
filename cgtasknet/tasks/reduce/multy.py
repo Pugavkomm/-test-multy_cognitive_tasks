@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
@@ -46,11 +47,11 @@ class MultyReduceTasks(ReduceTaskCognitive):
         ("GoDlTask2", GoDlTask2),
     ]
     task_list.sort()
-    TASKSDICT = dict(task_list)
+    TASKSDICT = OrderedDict(task_list)
 
     def __init__(
         self,
-        tasks: Union[Dict[str, Any], List[str]],
+        tasks: Union[Dict[str, Any], List[str], OrderedDict],
         batch_size: int = 1,
         mode: str = "random",
         delay_between: int = 0,  # iterations
@@ -68,7 +69,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
             delay_between (int, optional): [description]. Number of iteration without signal
         """
         self._delay_between = delay_between
-        self._initial_tasks_list = dict()
+        self._initial_tasks_list = OrderedDict()
         self._enable_fixation_delay = enable_fixation_delay
         if isinstance(tasks, list):
             for task_name in tasks:
@@ -154,7 +155,7 @@ class MultyReduceTasks(ReduceTaskCognitive):
         """
         sort the tasks in order to avoid duplicates
         """
-        new_dict = dict()
+        new_dict = OrderedDict()
         for task_name in sorted(self._initial_tasks_list):
             new_dict[task_name] = self._initial_tasks_list[task_name]
         self._initial_tasks_list = new_dict
