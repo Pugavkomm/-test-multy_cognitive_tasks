@@ -83,10 +83,21 @@ class SubgroupFinder:
     def dt(self, dt):
         self._dt = dt
 
-    def get_average_freq(self):
-        if self._average_freq_answer is None and self._average_freq_fixation is None:
-            return (None, None)
-        return (
-            self._average_freq_fixation / self._number_of_trials / self._dt,
-            self._average_freq_answer / self._number_of_trials / self._dt,
-        )
+    def get_average_freq(self, get_couple_frequency=False):
+        if not get_couple_frequency:
+            if (
+                self._average_freq_answer is None
+                and self._average_freq_fixation is None
+            ):
+                return (None, None)
+            return (
+                self._average_freq_fixation / self._number_of_trials / self._dt,
+                self._average_freq_answer / self._number_of_trials / self._dt,
+            )
+
+        else:
+            return (
+                (self._average_freq_fixation + self._average_freq_answer)
+                / self._number_of_trials
+                / self._dt
+            )
