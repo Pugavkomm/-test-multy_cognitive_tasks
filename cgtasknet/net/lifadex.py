@@ -46,7 +46,11 @@ class SNNlifadex(torch.nn.Module):
         Tuple[torch.tensor, torch.tensor],
     ]:
         outputs, states = save_states(
-            x, self.save_states, self.alif, state, additional_current
+            x,
+            self.save_states,
+            self.alif,
+            state,
+            additional_current,
         )
 
         outputs = self.exp_f(outputs)

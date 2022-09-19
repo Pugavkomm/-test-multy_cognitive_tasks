@@ -16,12 +16,12 @@ def save_states(x, save_states: bool, layer, state, additional_current=None):
         states = []
         outputs = []
         for ts in range(T):
-            if additional_current is not None:
-                s = (
-                    LIFAdExState(s.z, s.v, s.i + additional_current[ts], s.a)
-                    if s is not None
-                    else None
-                )
+            # if additional_current is not None:
+            #    s = (
+            #        LIFAdExState(s.z, s.v, s.i + additional_current[ts], s.a)
+            #        if s is not None
+            #        else None
+            #    )
             out, s = layer(x[ts : ts + 1, :, :], state=s)
             outputs.append(out)
             if save_states:
