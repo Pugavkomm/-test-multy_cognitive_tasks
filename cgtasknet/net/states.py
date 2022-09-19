@@ -1,7 +1,8 @@
 import torch
 from norse.torch.functional.lif import LIFState
 from norse.torch.functional.lif_adex import LIFAdExState
-from norse.torch.functional.lif_adex_refrac import LIFAdExRefracState
+
+# from norse.torch.functional.lif_adex_refrac import LIFAdExRefracState
 from norse.torch.functional.lif_refrac import LIFRefracState
 from norse.torch.functional.lsnn import LSNNState
 
@@ -99,23 +100,24 @@ class LIFAdExInitState(InitialStates):
         )
 
 
-class LIFAdExRefracInitState(InitialStates):
-    def zero_state(self):
-        self.lifadex_init_state = LIFAdExInitState(
-            self._batch_size, self._hidden_size, device=self._device
-        )
-
-        return LIFAdExRefracState(
-            self.lifadex_init_state.zero_state(),
-            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
-        )
-
-    def random_state(self):
-        self.lifadex_init_state = LIFAdExInitState(
-            self._batch_size, self._hidden_size, device=self._device
-        )
-
-        return LIFAdExRefracState(
-            self.lifadex_init_state.random_state(),
-            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
-        )
+# class LIFAdExRefracInitState(InitialStates):
+#    def zero_state(self):
+#        self.lifadex_init_state = LIFAdExInitState(
+#            self._batch_size, self._hidden_size, device=self._device
+#        )
+#
+#        return LIFAdExRefracState(
+#            self.lifadex_init_state.zero_state(),
+#            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+#        )
+#
+#    def random_state(self):
+#        self.lifadex_init_state = LIFAdExInitState(
+#            self._batch_size, self._hidden_size, device=self._device
+#        )
+#
+#        return LIFAdExRefracState(
+#            self.lifadex_init_state.random_state(),
+#            torch.zeros(self._batch_size, self._hidden_size).to(self._device),
+#        )
+#
